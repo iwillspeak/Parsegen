@@ -7,15 +7,6 @@
  */
 
 /**
- * Type Definitions
- *
- * These types are used later in the module to 
- * describe the tokens in the token stream. 
- */
-typedef enum   _Lex_TokenType Lex_TokenType;
-typedef struct _Lex_Token     Lex_Token;
-
-/**
  * Lexer TokenType Enum
  *
  * This enum lists all the possible tokens that this lexer
@@ -34,6 +25,15 @@ enum _Lex_TokenType {
 	Lex_lbrace,
 	Lex_rbrace
 };
+
+/**
+ * Type Definitions
+ *
+ * These types are used later in the module to 
+ * describe the tokens in the token stream. 
+ */
+typedef enum   _Lex_TokenType Lex_TokenType;
+typedef struct _Lex_Token     Lex_Token;
 
 /**
  * Lexer Token Structure

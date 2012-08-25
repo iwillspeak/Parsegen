@@ -17,6 +17,8 @@ ID      [a-zA-Z_][a-zA-Z0-9_]*
 
 LINECOM "--"
 
+%option noinput
+%option nounput
 %%
 
 {NUMBER}    { return Lex_number; } 
