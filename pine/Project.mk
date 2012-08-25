@@ -3,7 +3,7 @@ LOCAL_LIBS    := $(LEX_LIBS)
 
 SRCDIR	:= $(CURRENT_DIR)/src
 #TSTDIR  := $(CURRENT_DIR)/tst
-OBJDIR	:= $(MAKE_DIR)/$(CURRENT_DIR)/build
+OBJDIR	:= $(MAKE_DIR)/build/$(CURRENT_DIR)
 #TOBJDIR := $(CURRENT_DIR)/build/debug
 PRODDIR := $(MAKE_DIR)/bin
 

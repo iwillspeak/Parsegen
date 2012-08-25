@@ -1,7 +1,7 @@
 INCLUDE  := -Iinclude
 LIBDIR   := lib
 
-MAKE_DIR := $(dir $(lastword $(MAKEFILE_LIST)))
+MAKE_DIR := $(patsubst %/,%,$(dir $(lastword $(MAKEFILE_LIST))))
 
 ifeq ($(shell uname), Linux)
 CUNIT_LIB := -Wl,-Bstatic -lcunit -Wl,-Bdynamic
@@ -133,8 +133,8 @@ rebuild: clean all
 .PHONY: retest
 retest: clean all all_tests
 
-CURRENT_DIR    := lex
-CURRENT_TARGET := lex
+CURRENT_DIR    := pine
+CURRENT_TARGET := pine
 include $(CURRENT_DIR)/Project.mk
 
 .PHONY: list_projects
