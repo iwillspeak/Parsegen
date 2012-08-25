@@ -33,6 +33,6 @@ and `b` follows:
     a = 0;
     b = 10;
     a = a + b; -- (a + b) (b)
-    b = b - a; -- (a + b) (a)
+    b = a - b; -- (a + b) (a)
     a = a - b; -- (b) (a)
 
