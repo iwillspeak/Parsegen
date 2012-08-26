@@ -1,0 +1,30 @@
+-- 
+-- arrow = ->
+-- bar = |
+-- star = *
+-- lambda = $
+-- obracket = (
+-- cbracket = )
+-- identifier = [a-z][a-z0-9_-']*
+-- token_ref = <[a-z][a-z0-9_-']*>
+-- 
+-- %%
+
+parser -> grule*
+
+grule -> <identifier> <arrow> op0
+
+op0 -> op1 op0'
+
+op0' -> <bar> op0 |
+        $
+
+op1 -> op2 op1'
+
+op1' -> <star> |
+        $
+
+op2 -> <identifier> |
+       <token_ref> |
+       <obracket> op1 <cbracket>
+          

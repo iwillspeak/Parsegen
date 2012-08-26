@@ -137,6 +137,10 @@ CURRENT_DIR    := pine
 CURRENT_TARGET := pine
 include $(CURRENT_DIR)/Project.mk
 
+CURRENT_DIR    := parsgen
+CURRENT_TARGET := parsgen
+include $(CURRENT_DIR)/Project.mk
+
 .PHONY: list_projects
 list_projects:
 	@echo $(ALL_EXES) $(ALL_LIBS) $(ALL_TESTS)
