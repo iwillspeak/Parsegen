@@ -1,28 +1,34 @@
---%language pine
---%start module
---
---number = [0-9]+
---id = [a-zA-Z_][a-zA-Z0-9_]*
---module = module
---var = var
---
---%%
+language pine
+start module
+
+term number = [0-9]+
+term id = [a-zA-Z_][a-zA-Z0-9_]*
+term module = module
+term var = var
+term semicolon = ";"
+term plus = "+"
+term minus = "-"
+term assign = "="
+
+%%
 
 module -> <module> <id> prog
 
 pog -> stats
 
-stats -> (stat `;`)*
+stats -> (stat <semicolon>)*
 
 stat -> expression |
         assign |
-        declaration |
-        block
+        declaration
 
 expression -> op0
 
-op0 -> op0 `+` op1 |
-       op0 `-` op1
+op0 -> op1 op0p
+
+op0p -> <plus> op0
+op0 -> op0 <plus> op1 |
+       op0 <minus> op1
 
 op1 -> literal |
        lvalue |
@@ -34,8 +40,6 @@ literal -> <number>
 
 lvalue -> <id>
 
-assign -> lvalue `=` expression
+assign -> lvalue <assign> expression
 
 declaration -> <var> identifier
-
-block -> `{` stats `}`

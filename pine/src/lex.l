@@ -8,6 +8,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <stdbool.h>
 #include <lex.h>
 
 %}
@@ -55,7 +56,7 @@ Lex_Token* Lex_getNextToken(void) {
 		tok = malloc(sizeof(Lex_Token));
 		if (tok) {
 			tok->type = yylex();
-			tok->value = yytext;
+			tok->value = strdup(yytext);
 		}
 	}
 	else
@@ -75,4 +76,32 @@ Lex_Token* Lex_peekNextToken(void) {
 	if (nextTok == NULL)
 		nextTok = Lex_getNextToken();
 	return nextTok;
+}
+
+/**
+ * Peek until a token in the token list is found
+ */
+Lex_Token* Lex_peekUntil(Lex_TokenType* tokenList) {
+	Lex_Token* tok;
+
+	do {
+		tok = Lex_peekNextToken();
+		for (Lex_TokenType* i = tokenList; *i != Lex_TokenListEnd; ++i) {
+			if (tok->type == *i)
+				return tok;
+		}
+		Lex_freeToken(tok);
+		nextTok = NULL;
+	} while (true);
+}
+
+/**
+ * Free a token, freeing it's internal value buffer too.
+ */
+void Lex_freeToken(Lex_Token* tok) {
+
+	if (tok != NULL) {
+		free(tok->value);
+		free(tok);
+	}
 }

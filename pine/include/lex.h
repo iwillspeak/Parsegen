@@ -34,6 +34,7 @@ enum _Lex_TokenType {
  */
 typedef enum   _Lex_TokenType Lex_TokenType;
 typedef struct _Lex_Token     Lex_Token;
+#define Lex_TokenListEnd ((Lex_TokenType)-1)
 
 /**
  * Lexer Token Structure
@@ -57,6 +58,15 @@ struct _Lex_Token {
  */
 Lex_Token* Lex_getNextToken(void);
 Lex_Token* Lex_peekNextToken(void);
+Lex_Token* Lex_peekUntil(Lex_TokenType* tokenList);
+
+/**
+ * Token Destructor
+ *
+ * This method must be called on all tokens returned by the 
+ * lexer by getNextToken
+ */
+void Lex_freeToken(Lex_Token* tok);
 
 /**
  * Token Printing Funciton
