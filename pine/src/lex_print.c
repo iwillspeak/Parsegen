@@ -21,15 +21,3 @@ void Lex_printToken(Lex_Token* token) {
 
 	fprintf(stdout, "{%s : %s}\n", tokenName[token->type], token->value);
 }
-
-int main(int argc, char* argv[]) {
-	Lex_Token* tok;
-	Lex_TokenType type;
-	
-	do {
-		tok = Lex_getNextToken();
-		Lex_printToken(tok);
-		type = tok->type;
-		Lex_freeToken(tok);
-	} while (type != Lex_eof);
-}
