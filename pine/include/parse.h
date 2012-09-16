@@ -85,7 +85,7 @@ struct _Par_Expression {
 };
 Par_Expression* Par_createOperationExpression(Par_Operation* operation);
 Par_Expression* Par_createLiteralExpression(Par_Literal* literal);
-Par_Expression* Par_createLvalueExpression(Par_Lvalue);
+Par_Expression* Par_createLvalueExpression(Par_Lvalue* lvalue);
 
 /**
  * Enum of Operation Types

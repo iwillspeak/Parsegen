@@ -73,8 +73,8 @@ Par_Statement* Par_createDeclarationStatement(Par_Declaration* declaration) {
 Par_Expression* Par_createOperationExpression(Par_Operation* operation) {
 	Par_Expression* ret = amalloc(sizeof(Par_Expression));
 	
-	ret.type = Par_ExpressionOperation;
-	ret.value.operation = operation;
+	ret->type = Par_ExpressionOperation;
+	ret->value.operation = operation;
 	
 	return ret;
 }
@@ -82,8 +82,8 @@ Par_Expression* Par_createOperationExpression(Par_Operation* operation) {
 Par_Expression* Par_createLiteralExpression(Par_Literal* literal) {
 	Par_Expression* ret = amalloc(sizeof(Par_Expression));
 	
-	ret.type = Par_ExpressionLiteral;
-	ret.value.literal = literal;
+	ret->type = Par_ExpressionLiteral;
+	ret->value.literal = literal;
 	
 	return ret;
 }
@@ -91,8 +91,8 @@ Par_Expression* Par_createLiteralExpression(Par_Literal* literal) {
 Par_Expression* Par_createLvalueExpression(Par_Lvalue* lvalue) {
 	Par_Expression* ret = amalloc(sizeof(Par_Expression));
 	
-	ret.type = Par_ExpressionLvalue;
-	ret.value.lvalue = lvalue;
+	ret->type = Par_ExpressionLvalue;
+	ret->value.lvalue = lvalue;
 	
 	return ret;
 }
