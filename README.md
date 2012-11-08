@@ -23,3 +23,9 @@ Non-terminal symbols are designated by uppercase identifiers. The right hand
 side of a rule can be empty to allow the no-terminal to allow lambda 
 transitions.
 
+Prerequisites
+-------------
+
+ * Python
+ * Pystache
+ * argparse

@@ -1,0 +1,20 @@
+// This fle defines the language
+// of integer addition and subtraction
+// expressions.
+
+%{
+
+expressions := expression NEWLINE expressions
+expressions :=
+
+expression := literal expression_prime
+
+expression_prime := PLUS literal expression_prime
+expression_prime := MINUS literal expression_prime
+expression_prime := 
+
+literal := PLUS literal
+literal := MINUS literal
+literal := NUMBER
+
+%}

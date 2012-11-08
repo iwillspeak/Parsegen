@@ -1,0 +1,36 @@
+#include <stdlib.h>
+/* Include the user-specified modules */
+{{#module}}
+#include <{{.}}.h>
+{{/module}}
+
+/**
+ * This parser was generated automaticlally from {{source}} by parsegen.py. 
+ */
+
+/*****************************************************************************
+ *                            Helper Methods                                 *
+ ****************************************************************************/
+static Lex_Token* eatTerminal(Lex_TokenType type) {
+
+	if (Lex_peekNextToken()->type == type)
+		return Lex_getNextToken();
+	else
+		return NULL;
+}
+
+/*****************************************************************************
+ *                             Productions                                   *
+ ****************************************************************************/
+{{#nonterm}}
+	{{#production}}
+		
+	{{/production}}
+{{/nonterm}}
+
+/*****************************************************************************
+ *                           User Code Section                               *
+ ****************************************************************************/
+{{#code}}
+	{{.}}
+{{/code}}
