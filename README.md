@@ -1,38 +1,25 @@
-Pine
-====
+Parsegen
+========
 
-Pine is a simple line-style language project aimed to create a new
-object-oriented compiler parser generator.
+This project contains the automatic parser generator for the Leet-Lang 
+project. It takes a grammar file that describes the language and generates
+a top-down parser for that language. Parsegen can generate parsers for LL(1)
+grammars.
 
-The Parser
-----------
+The Grammar File
+----------------
 
-Pine is intended to allow the creation of a new parser generator, similar to
-GNU bison or equivalents. It differs in that it is not intended to be able to
-create generic parsers but instead parsers that create an Abstract Syntax Tree
-for use as the front-end to a programming language compiler. 
+Parsegen grammar files are written in a dialect of BNF. Each line that 
+contains a rule begins with a non-terminal followed by the `:=` symbol. The 
+right hand side of the rule is made up of a mixture of terminals and 
+non-terminals.
 
-The Language
-------------
+	expr := NUMBER expr_prime
+	expr_prime := ADD expr_prime
+	expr_prime := SUB expr_prime
+	expr_prime :=
 
-The pine language is a 'line' type programming language. That is it consists
-of programs of arithmetic operations with no looping. This is to simplify 
-the grammar of the language. The language is not capable of conditional jumps
-and therefore is not turing complete. 
-
-An example pine program, a `.cone`, that swaps the values of variables `a`
-and `b` follows:
-
-
-    -- example pine language program
-    module example
-    
-    var a;
-    var b;
-    
-    a = 0;
-    b = 10;
-    a = a + b; -- (a + b) (b)
-    b = a - b; -- (a + b) (a)
-    a = a - b; -- (b) (a)
+Non-terminal symbols are designated by uppercase identifiers. The right hand 
+side of a rule can be empty to allow the no-terminal to allow lambda 
+transitions.
 

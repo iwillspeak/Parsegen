@@ -1,7 +1,3 @@
-*.o
-*.out
-*.yy.c
 *~
 #*#
 !.gitignore
-bin/*
