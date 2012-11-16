@@ -5,8 +5,19 @@
 {{/module}}
 
 /**
- * This parser was generated automaticlally from {{source}} by parsegen.py. 
+ * This parser was generated automaticlally by parsegen.py. 
  */
+
+/*****************************************************************************
+ *                          Forward Declarations                             *
+ ****************************************************************************/
+{{^options.notypes}}
+typedef struct Par_Node_ Par_Node;
+{{/options.notypes}}
+
+{{#production}}
+static Par_Node* {{name}}();
+{{/production}}
 
 /*****************************************************************************
  *                            Helper Methods                                 *
@@ -23,14 +34,40 @@ static Lex_Token* eatTerminal(Lex_TokenType type) {
  *                             Productions                                   *
  ****************************************************************************/
 {{#nonterm}}
+static Par_Node* {{name}}() {
+	switch (Lex_peekNextToken()->type) {
 	{{#production}}
-		
+	{{#prediction}}
+	case {{.}}:
+	{{/prediction}}
+	{{^prediction}}
+		// lambda transition
+	{{/prediction}}
+		{{#expansion}}
+		{{#term}}
+		eatTerminal({{token}});
+		{{/term}}
+		{{^term}}
+		eat non terminal {{token}}
+		{{/term}}
+		{{/expansion}}
+		break;
 	{{/production}}
+	default:
+	{{#nullable}}
+		return NULL;
+	{{/nullable}}
+	{{^nullable}}
+		fprintf(stderr, "Expecting {{#first}}{{.}}, {{/first}}but found \n");
+	{{/nullable}}
+	}
+}
+
 {{/nonterm}}
 
 /*****************************************************************************
  *                           User Code Section                               *
  ****************************************************************************/
 {{#code}}
-	{{.}}
+{{.}}
 {{/code}}

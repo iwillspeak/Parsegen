@@ -2,6 +2,8 @@
 import sys
 import os
 
+import pystache
+
 def isTerm(string):
 	return string.upper() == string
 
@@ -16,7 +18,6 @@ def getCounts(rule):
 	return (terms, nterms)
 
 class NonTerm(object):
-	
 	
 	def __init__(self, expansion):
 		self.nullable = False
@@ -61,8 +62,7 @@ class NonTerm(object):
 		
 	def __str__(self):
 		return str(self.nullable) + "(" + str(self.first)+ ")" + str(self.expansions)
-	
-		
+
 def main(argv):
 	from argparse import ArgumentParser, FileType
 	
@@ -189,14 +189,20 @@ def main(argv):
 	if not valid:
 		return 1
 	
+	# Create a blank view
+	view = { 'options': options }
+	
 	# print out the resulting automaton
 	options.output.write("#include <stdlib.h>\n")
+	
+	view['module'] = ['lex', 'parse']
 	options.output.write("#include <lex.h>\n")
 	options.output.write("#include <parse.h>\n")
 	options.output.write("\n")
+	
 	if not options.notypes:
 		options.output.write("typedef struct Par_Node_ Par_Node;\n")
-	options.output.write("\n")
+
 	options.output.write("/* Auto generated parser created from {0} */\n".format(options.file.name))
 	options.output.write("\n")
 	
@@ -204,6 +210,11 @@ def main(argv):
 	for name in rules.keys():
 		options.output.write("static Par_Node* {0}(void* userPointer);\n".format(name))
 	options.output.write("\n")
+	
+	view['nonterm'] = (map(lambda x: {
+		'name': x[0], 'nullable': x[1].isNullable(), 'first': x[1].getFirst(),
+		'production': map(lambda x: {'expansion': map(lambda x: {'terminal': isTerm(x), 'token': x}, x), 'prediction': None if not x else ([x[0]] if isTerm(x[0]) else rules[x[0]].getFirst())}, x[1].getExpansions())
+	}, rules.iteritems()))
 	
 	if options.skeleton:
 		options.skeleton.write("#include <stdlib.h>\n")
@@ -328,6 +339,10 @@ def main(argv):
 	options.output.write("// User code section\n")
 	options.output.write(''.join(userCode))
 	options.output.write('\n')
+	
+	view['code'] = (s[:-1] for s in userCode)
+	print view
+	print pystache.render(''.join(open("langs/c.mustache").readlines()), view)
 
 if __name__ == '__main__':
 	sys.exit(main(sys.argv[1:]))
