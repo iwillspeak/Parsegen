@@ -4,6 +4,71 @@ import os
 
 import pystache
 
+# -------------------------------------------------------------------
+# Class Symbol
+#
+# Terminal or non-terminal symbol in the grammar. Terminal symbols are strings
+# non-terminals are collections of expansions.
+# 
+
+class Symbol(object):
+	
+	def __init__(self, string):
+		self.name = string.strip()
+		self.expansions = []
+		self.am_nullable = True
+		
+		self._check_identifier(self.name)
+	
+	def is_term(self):
+		return self.name.upper() == self.name
+		
+	def first(self):
+		if self.is_term():
+			return set([self.name])
+		
+		f_set = set()
+		for e in self.expansions:
+			f_set = f_set.union(self._expansion_first(e))
+			
+		return f_set
+	
+	def nullable(self):
+		for e in self.expansions:
+			if not(len(e)):
+				return True
+		
+		return not self.is_term() and not len(self.expansions)
+			
+	def push_expansion(self, expansion):
+		if self.is_term():
+			raise TerminalExpansionError
+		
+		self.expansions.append(expansion)
+		
+	def _check_identifier(self, identifier):
+		
+		for s in identifier.split("_"):
+			if not s.isalpha():
+				raise IdentifierError
+	
+	def _expansion_first(self, expansion):
+		ret = set()
+		for sym in expansion:
+			ret = ret.union(sym.first())
+			if not sym.nullable():
+				return ret
+		return ret
+		
+
+class TerminalExpansionError(Exception):
+	pass
+	
+class IdentifierError(Exception):
+	pass
+
+# --------------------------------------------------------------------
+
 def isTerm(string):
 	return string.upper() == string
 
@@ -19,12 +84,13 @@ def getCounts(rule):
 
 class NonTerm(object):
 	
-	def __init__(self, expansion):
+	def __init__(self, expansion = None):
 		self.nullable = False
 		self.expansions = []
 		self.first = set()
 		self.follow = set()
-		self.addExpansion(expansion)
+		if expansion:
+			self.addExpansion(expansion)
 	
 	def addExpansion(self, expansion):
 		self.expansions.append(expansion)
