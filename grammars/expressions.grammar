@@ -18,3 +18,8 @@ literal := MINUS literal
 literal := NUMBER
 
 %}
+
+int parser_main(void) {
+	
+	return expressions() != NULL;
+}

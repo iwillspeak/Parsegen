@@ -81,10 +81,13 @@ class TestSymbols():
 		b = new_symbol("b")
 		assert b.nullable()
 		
-		b.push_expansion([new_symbol("bar")])
-		b.push_expansion([new_symbol("bax")])
+		b.push_expansion([new_symbol("BAC")])
+		b.push_expansion([new_symbol("ASDF")])
 		assert not b.nullable()
 		
+		c = new_symbol("c")
+		c.push_expansion([new_symbol("def"), new_symbol("ghi")])
+		assert c.nullable()
 		
 	def test_first_with_expansions(self):
 		a = new_symbol("a")
@@ -105,4 +108,14 @@ class TestSymbols():
 		b.push_expansion([new_symbol("lamb"), new_symbol("FUD"), new_symbol("FOD")])
 		print b.first()
 		assert b.first() == set(["FUD"])
+
+
+class TestExpansion():
+	
+	def test_create(self):
+		assert Expansion()
+		assert Expansion([])
+		assert Expansion([new_symbol("a"), new_symbol("FSD")])
+		assert Expansion([new_symbol("car")])
+		assert Expansion([new_sy])
 	

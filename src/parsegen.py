@@ -44,7 +44,7 @@ class Symbol(object):
 	
 	def is_term(self):
 		return self.name.upper() == self.name
-		
+	
 	def first(self):
 		if self.is_term():
 			return set([self.name])
@@ -57,17 +57,20 @@ class Symbol(object):
 	
 	def nullable(self):
 		for e in self.expansions:
-			if not(len(e)):
+			for s in e:
+				if not s.nullable():
+					break
+			else:
 				return True
 		
 		return not self.is_term() and not len(self.expansions)
-			
+	
 	def push_expansion(self, expansion):
 		if self.is_term():
 			raise TerminalExpansionError
 		
 		self.expansions.append(expansion)
-		
+	
 	def _check_identifier(self, identifier):
 		
 		for s in identifier.split("_"):
@@ -81,13 +84,25 @@ class Symbol(object):
 			if not sym.nullable():
 				return ret
 		return ret
-		
+	
 
 class TerminalExpansionError(Exception):
 	pass
 	
 class IdentifierError(Exception):
 	pass
+
+# -------------------------------------------------------------------
+# Class Expansion
+#
+# Represents an expansion of a non-terminal symbo. This is list of Symbols 
+# that represent the expansion.
+#
+
+class Expansion(list):
+	
+	def __init__(self, *expansions):
+		pass
 
 # --------------------------------------------------------------------
 
@@ -431,6 +446,7 @@ def main(argv):
 	view['code'] = (s[:-1] for s in userCode)
 	print view
 	print pystache.render(''.join(open("langs/c.mustache").readlines()), view)
+
 
 if __name__ == '__main__':
 	sys.exit(main(sys.argv[1:]))
