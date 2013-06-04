@@ -211,7 +211,7 @@ def main(argv):
 	# Process each declaration
 	for dec in ourCode:
 		if ':=' in dec:
-			nt, e, expansion = dec.partition(':=')
+			nt, _, expansion = dec.partition(':=')
 			nt = nt.strip()
 			expansion = expansion.split()
 		
