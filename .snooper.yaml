@@ -1,3 +1,4 @@
 base_path: .
 filters: \.py$
-command: nosetests
+ignored: setup.py$
+command: nosetests test/

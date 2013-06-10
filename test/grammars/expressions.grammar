@@ -1,8 +1,15 @@
-// This fle defines the language
-// of integer addition and subtraction
-// expressions.
+# This section defines the terminals for the grammar
 
-%{
+NEWLINE = Tok_Newline
+PLUS = Tok_Plus
+MINUS = Tok_Minus
+NUMBER = Tok_Number
+
+# These are the options. Options can also be specified from the command line
+%language C
+%lexer_method Lex_getNextToken
+
+%%
 
 expressions := expression NEWLINE expressions
 expressions :=
@@ -17,7 +24,7 @@ literal := PLUS literal
 literal := MINUS literal
 literal := NUMBER
 
-%}
+%%
 
 int parser_main(void) {
 	
