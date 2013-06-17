@@ -32,6 +32,20 @@ class TestParsegen(object):
 	Tests the `parsegen` module.
 	"""
 	
+	def test_errors(self):
+		e_str = "dummy string"
+		
+		e = ParseError(e_str)
+		assert str(e).startswith('parsegen:')
+		assert 'parse error' in str(e)
+		assert e_str in str(e)
+		
+		e = GrammarError(e_str)
+		assert str(e).startswith('parsegen:')
+		assert 'grammar error' in str(e)
+		assert e_str in str(e)
+
+	
 	def test_parse_buffer(self):
 		
 		res = parse_buffer(" %% %% ")
@@ -77,18 +91,157 @@ class TestParsegen(object):
 		%language = c
 		FOO = Tok_FOO
 		BAZ = Tok_BAZ
+		BAR = Tok_BAR
 		%%
-		main := bar bar_prime
+		main := baz bar_prime
 		bar  := FOO BAR
 		bar_prime := bar bar_prime
 		bar_prime := 
+		baz := bar_prime
 		%%
 		// this is a comment
 		"""
 		)
 		
-		assert len(exps) == 3
+		assert len(exps) == 4
 		assert len(exps['main']) == 1
 		assert len(exps['bar']) == 1
 		assert len(exps['bar_prime']) == 2
+		assert len(exps['baz']) == 1
+		
+		main = exps['main']
+		bar = exps['bar']
+		bar_prime = exps['bar_prime']
+		baz = exps['baz']
+		
+		assert not main.is_nullable()
+		assert not bar.is_nullable()
+		assert bar_prime.is_nullable()
+		assert baz.is_nullable()
 	
+	def test_invalid_expansions(self):
+		
+		assert_raises(
+			GrammarError, lambda: parse_buffer(" %% main := TOKEN %% "))
+		assert_raises(
+			GrammarError, lambda: parse_buffer(" %% main := fdass %% "))
+		assert_raises(
+			GrammarError, lambda: parse_buffer(
+				"TOKEN %% TOKEN := invalid \n invalid := %% "))
+
+class TestHeader(object):
+	"""Test Header
+	
+	Test the Header object. This is responsible for representing the options
+	and the terminals used for the grammar. Options can be accessed with the
+	`get_option` method to allow accessing options with a default value.
+	"""
+	
+	def test_create(self):
+		
+		h = Header({}, {})
+		assert h != None
+		assert len(h.options) == 0
+		assert len(h.terminals) == 0
+		
+		h = Header({'TERM': 'definition'}, {'option': 'value'})
+		assert h != None
+		assert len(h.options) == 1
+		assert h.options['option'] == 'value'
+		
+		assert len(h.terminals) == 1
+		assert h.terminals['TERM'] == 'definition'
+		
+	def test_get_option(self):
+		
+		h = Header({'TERM': 'definition'}, {'option': 'value'})
+		
+		assert hasattr(h, 'get_option')
+		
+		assert h.get_option('option') == 'value'
+		assert h.get_option('option', 'default') == 'value'
+		assert h.get_option('notinhahs') == ''
+		assert h.get_option('notinhash', 'default') == 'default'
+
+class TestSymbol(object):
+	"""Test Symbol
+	
+	Test the Symbol object. This is responsible for representing a given
+	symbol and all of it's expansions. It is responsible for holding information
+	about the nullability of the symbol and the first and follow sets of the 
+	symbol.
+	"""
+	
+	def test_create(self):
+		s = Symbol()
+		
+		assert s != None
+		
+		assert_raises(TypeError, lambda: Symbol("some test string"))
+		
+		assert hasattr(s, "expansions")
+
+		
+	def test_add_expansion(self):
+		
+		s = Symbol()
+		
+		assert len(s.expansions) == 0
+		
+		s.add_expansion(["this", "is", "an", "expansion"])
+		
+		assert len(s.expansions) == 1
+		
+		s.add_expansion(["shorter", "expansion"])
+		
+		assert len(s.expansions) == 2
+		
+		s.add_expansion([])
+		
+		assert len(s.expansions) == 3
+		
+		assert len(s.expansions) == len(s)
+
+	def test_nullable(self):
+		
+		s = Symbol()
+		
+		assert s.is_nullable()
+		
+		s.add_expansion(["not", "nullable"])
+		
+		assert not s.is_nullable()
+		
+		s.add_expansion([])
+		
+		assert s.is_nullable()
+		
+	def test_first_set(self):
+		
+		s = Symbol()
+		
+		assert s.first == set()
+		
+		s.add_first({'foo', 'bar'})
+		
+		assert s.first == {'foo', 'bar'}
+		
+		s.add_first(['bar', 'baz'])
+		
+		assert s.first == {'foo', 'bar', 'baz'}
+		
+	def test_follow_set(self):
+		
+		s = Symbol()
+		
+		assert s.follow == set()
+		
+		s.add_follow({'foo', 'bar'})
+		
+		assert s.follow == {'foo', 'bar'}
+		
+		s.add_follow(['bar', 'baz'])
+		
+		assert s.follow == {'foo', 'bar', 'baz'}
+		
+		
