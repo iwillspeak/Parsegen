@@ -22,45 +22,165 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-##
-# Grammar - Parses and represents grammar files
-
-class Grammar():
-	
-	def __init__(self, definitions, options, expansions, code):
-		self.definitions = definitions
-		self.options = options
-		self.expansions = expansions
-		self.code = code
-		
-	def __repr__(self):
-		return "{0}, {1}, {2}, {3}".format(self.definitions, self.options, self.expansions, self.code)
-
-	@classmethod
-	def parse_buffer(klass, buff):
-		buff = buff.split("%%")
-		
-		blen = len(buff)
-		if blen != 3:
-			raise ParseError("Expecting 3 sections but found {0}".format(blen))
-			
-		defs = []
-		opts = {}
-		for l in buff[0].split("\n"):
-			if l.startswith("%"):
-				option, _, value = l[1:].partition(" ")
-				option.strip()
-				value.strip()
-				opts[option] = value.strip()
-			elif len(l):
-				defs.append(l)	
-		
-		exps = []
-		for e in buff[1].split('\n'):
-			if len(e):
-				exps.append(e)
-		return klass(defs, opts, exps, buff[2])
-		
+import sys
 
 class ParseError(Exception):
-	pass
+	"""Parse Error
+	
+	Represents a failure to parse a grammar file. The reason for the failure is
+	provided as a string.
+	"""
+	
+	def __init__(self, string):
+		error = "parsegen: parse error: " + string
+		Exception.__init__(self, error)
+
+class Header(object):
+	"""Grammar File Header
+	
+	Represents the header section of the grammar file. Contains two mappings
+	that represent the options and the terminal definitions.
+	"""
+	
+	def __init__(self, terms, opts):
+		self.options = opts
+		self.terminals = terms
+
+class Symbol(object):
+	"""Grammar Symbol
+	
+	Represents the expansions of a given symbol.
+	"""
+	
+	def __init__(self):
+		self.expansions = []
+	
+	def add_expansion(self, expansion):
+		self.expansions.append(expansion)
+	
+	def __len__(self):
+		return len(self.expansions)
+
+def parse_buffer(buffer):
+	"""Parse Buffer
+	
+	Parse the given buffer and return a 3-tuple of the contents. The first
+	element of the tuple is a Header object representing the definitions
+	and options used, the second is a list of expansions and the third is a 
+	string containing the contents of the user code section.
+	"""
+	
+	try:
+		sects = buffer.split("%%")
+		header, expansions, user_code = sects
+	except ValueError:
+		raise ParseError("expected 3 sections but found {0}".format(len(sects)))
+		
+	# process the header section, to extract the options and stuff
+	header = _process_header(header)
+	
+	# now we can process the expansions
+	expansions = _process_expansions(header, expansions)
+	
+	# Return the processed parts
+	return header, expansions, user_code
+
+def parse_file(file):
+	"""Parse File
+	
+	Reads the contents of the file and parses the contents. Returns the same
+	as `parse_buffer`.
+	"""
+	
+	try:
+		return parse_buffer(file.read())
+	except AttributeError:
+		with open(file, "r") as file:
+			return parse_buffer(file.read())
+
+def write_grammar(header, expansions, user_code, file=sys.stdout):
+	"""Write Grammar
+	
+	Write a program out to the file that represents an automaton that parses
+	the given grammar.
+	"""
+	
+	# TODO: write out header properly
+	print(header)
+	
+	# TODO: write out expansions properly
+	print(epxansions)
+	
+	print(user_code)
+
+def _processed_lines(text):
+	"""Processed Lines
+	
+	Returns an iterable containing all non-empty lines within the text with
+	comments removed.
+	"""
+	for l in text.split("\n"):
+		l, _, _ = l.partition("#")
+		l = l.strip()
+		if len(l):
+			yield l
+
+def _kv_with_sep(opt_line, sep="="):
+	"""Key Value Pair
+	
+	Extracts a key-value pair from the `opt_line` using the separator, if given.
+	"""
+	key, _, val = opt_line.partition(sep)
+	
+	key = key.strip()
+	val = val.strip()
+	
+	return key, val
+
+def _add_opt_to_dict(opt_line, dict, sep="="):
+	"""Add Option to Dictionary
+	
+	Extracts a `key = value` pair from the `opt_line` and adds the pair to the
+	`dict`, uaing the optional separator `sep` to separate them.
+	"""
+	key, val = _kv_with_sep(opt_line, sep)
+	
+	dict[key] = val
+
+def _process_header(header):
+	"""Process Header
+	
+	Process the header section, splits the header definitions into two `dict`s
+	so that they can be looked up later.
+	"""
+	
+	terms = {}
+	opts = {}
+	
+	for l in _processed_lines(header):
+		if l[:1] == "%":
+			_add_opt_to_dict(l[1:], opts)
+		else:
+			_add_opt_to_dict(l, terms)
+	
+	return Header(terms, opts)
+
+def _process_expansions(header, expansions):
+	"""Process Expansions
+	
+	Compute the required information about each symbol in the grammar to be
+	able to write the grammar out to a file.
+	"""
+	exps = {}
+	
+	for l in _processed_lines(expansions):
+		sym, exp = _kv_with_sep(l, ":=")
+		
+		s = exps.get(sym, Symbol())
+		s.add_expansion(exp)
+		exps[sym] = s
+	
+	# TODO: Calcualte the nullable, first and follow set bits here
+	
+	return exps
+
