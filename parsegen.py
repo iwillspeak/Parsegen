@@ -199,8 +199,10 @@ def parse_file(file):
 	try:
 		return parse_buffer(file.read())
 	except AttributeError:
-		with open(file, "r") as file:
-			return parse_buffer(file.read())
+		pass
+	
+	with open(file, "r") as file:
+		return parse_buffer(file.read())
 
 def write_grammar(header, expansions, user_code, file=sys.stdout):
 	"""Write Grammar
@@ -287,18 +289,15 @@ def _process_expansions(expansions):
 		
 	return exps
 
-def _compute_sets_for_expansions(header, expansions):
-	"""Compute Sets for Expansions
+def _initialise_expansions_state(header, expansions):
+	"""Initialise Expansions State
 	
-	Iteratively computes the first and follow sets for the grammar defined
-	by the `header` and `expansions`. Will raise a GrammarError if 
-	one of the expansions attempts to use an undefined nonterminal or if an
-	expansion is defined for a terminal.
+	Sets up the expansions ready to have the first and follow sets computed.
 	"""
 	
 	for name, symbol in expansions.items():
 		if name in header.terminals:
-			raise GrammarError("expansion for non terminal")
+			raise GrammarError("expansion for nonterminal {0}".format(name))
 		
 		for exp in symbol.expansions:
 			# This creates the initial first sets for each symbol
@@ -310,14 +309,72 @@ def _compute_sets_for_expansions(header, expansions):
 					raise GrammarError(
 					"{0} is not defined as a terminal or nonterminal".format(e))
 
+def _each_expansion(expansions):
+	"""Each Expansion
+	
+	Returns an iterator that yields a 3-tuple of name, symbol and expansion for
+	each expansion in the given expansion `dict`.
+	"""
+	
+	for name, symbol in expansions.items():
+		for expansion in symbol.expansions:
+			yield name, symbol, expansion
+
+def _update_first_from_expansion(header, expansions, name, symbol, expansion):
+	"""Update First from Expansion
+	
+	Updates the first set fro a given symbol based on one of it's expansions.
+	Returns true if an update is made to the symbol and false otherwise.
+	"""
+	
+	changed = False
+	
+	for e in expansion:
+		if e in header.terminals:
+			break
+		other_sym = expansions[e]
+		if not other_sym.first.issubset(symbol.first):
+			symbol.add_first(other_sym.first)
+			changed = True
+		if not other_sym.is_nullable():
+			break
+	else:
+		# if all of the expansions are nullable and there are no terminals then 
+		# the symbol is nullable too
+		if not symbol.is_nullable():
+			symbol.set_nullable()
+			changed = True
+	
+	return changed
+
+def _update_follow_from_expansion(header, name, symbol, expansion):
+	"""Update Follow from Expansion
+	
+	Updates the follow set for a given symbol based on one of it's expansions.
+	Returns true if an update is made to the symbol and false otherwise.
+	"""
+	
+	return False
+
+def _compute_sets_for_expansions(header, expansions):
+	"""Compute Sets for Expansions
+	
+	Iteratively computes the first and follow sets for the grammar defined
+	by the `header` and `expansions`. Will raise a GrammarError if 
+	one of the expansions attempts to use an undefined nonterminal or if an
+	expansion is defined for a terminal.
+	"""
+	
+	_initialise_expansions_state(header, expansions)
+
 	changed = True
 	while changed:
 		changed = False
 		
-		for name, symbol in expansions.items():
-			# FIXME: this is just to make the tests pass :-/
-			if name == 'baz':
-				symbol.set_nullable()
-			# TODO: need to compute the first and follow sets here
+		for name, symbol, expansion in _each_expansion(expansions):
+			r = _update_first_from_expansion(
+				header, expansions, name, symbol, expansion)
+			s = _update_follow_from_expansion(header, name, symbol, expansion)
+			changed = changed or r or s
 	
 	return expansions

@@ -1,0 +1,292 @@
+AND = Tok_AND
+ASSIGN = Tok_ASSIGN
+AT = Tok_AT
+CBRACE = Tok_CBRACE
+CBRACKET = Tok_CBRACKET
+CLASS = Tok_CLASS
+COLON = Tok_COLON
+COMMA = Tok_COMMA
+CSBRACKET = Tok_CSBRACKET
+DECREMENT = Tok_DECREMENT
+DEFAULT = Tok_DEFAULT
+DIV = Tok_DIV
+DIV_ASSIGN = Tok_DIV_ASSIGN
+DO = Tok_DO
+ELIF = Tok_ELIF
+ELSE = Tok_ELSE
+EOF = Tok_EOF
+EQ = Tok_EQ
+FALSE = Tok_FALSE
+FOR = Tok_FOR
+FOREACH = Tok_FOREACH
+GT = Tok_GT
+GTEQ = Tok_GTEQ
+IDENTIFIER = Tok_IDENTIFIER
+IF = Tok_IF
+IMPORT = Tok_IMPORT
+IN = Tok_IN
+INCREMENT = Tok_INCREMENT
+LITERAL_DECIMAL = Tok_LITERAL_DECIMAL
+LITERAL_NUMBER = Tok_LITERAL_NUMBER
+LITERAL_STRING = Tok_LITERAL_STRING
+LT = Tok_LT
+LTEQ = Tok_LTEQ
+MASK = Tok_MASK
+MINUS = Tok_MINUS
+MINUS_ASSIGN = Tok_MINUS_ASSIGN
+MOD = Tok_MOD
+MODULE = Tok_MODULE
+MUL = Tok_MUL
+MUL_ASSIGN = Tok_MUL_ASSIGN
+NEQ = Tok_NEQ
+NOT = Tok_NOT
+OBRACE = Tok_OBRACE
+OBRACKET = Tok_OBRACKET
+OR = Tok_OR
+OSBRACKET = Tok_OSBRACKET
+PLUS = Tok_PLUS
+PLUS_ASSIGN = Tok_PLUS_ASSIGN
+POWER = Tok_POWER
+RETURN = Tok_RETURN
+SEMICOLON = Tok_SEMICOLON
+SWITCH = Tok_SWITCH
+TRUE = Tok_TRUE
+WHILE = Tok_WHILE
+
+%%
+program := mod_meta module_body EOF
+
+mod_meta := MODULE IDENTIFIER imports
+
+imports := IMPORT IDENTIFIER imports
+imports := 
+
+module_body := definitions module_body
+module_body := statements module_body
+module_body := 
+
+definitions := definition definitions
+definitions := 
+definition := class_def
+definition := function_def
+
+statements := statement SEMICOLON statements
+statements := control_statement statements
+statements := 
+
+# To ensure that the grammar is LL(1) we must use this hack to allow
+# declarations or assignments (or declaration assignments). This could be pushed
+# further down the grammar but that would just cause more problems. If the
+# assign or declare is not empty then the expression must be an lvaue or type.
+
+statement := expression assign_or_declare
+
+block := OBRACE statements CBRACE
+
+declaration := IDENTIFIER IDENTIFIER
+declaration_assignment := declaration assignment
+assignment := ASSIGN expression
+optional_assignment := assignment
+optional_assignment :=
+
+assign_or_declare := IDENTIFIER optional_assignment
+
+declaration_list := declaration declaration_list_more
+declaration_list_more := COMMA declaration declaration_list_more
+declaration_list_more := 
+
+expression_list := expression expression_list_more
+expression_list_more := COMMA expression expression_list_more 
+expression_list_more := 
+
+function_def := AT IDENTIFIER IDENTIFIER OBRACKET optional_arg_list CBRACKET mask_list block
+
+optional_arg_list := declaration_list
+optional_arg_list := 
+
+mask := MASK OBRACKET optional_arg_list CBRACKET block
+
+mask_list := COLON mask mask_list_more
+mask_list :=
+mask_list_more := COMMA mask mask_list_more
+mask_list_more := 
+
+assign_or_declare := assignment_body
+assign_or_declare := 
+
+expression := oper0
+
+oper0 := oper1 oper0_prime
+oper0_prime := AND oper1 oper0_prime
+oper0_prime := OR oper1 oper0_prime
+oper0_prime :=
+
+oper1 := oper2 oper1_prime
+oper1_prime := EQ oper2 oper1_prime
+oper1_prime := NEQ oper2 oper1_prime
+oper1_prime := 
+
+oper2 := oper3 oper2_prime
+oper2_prime := LT oper3 oper2_prime
+oper2_prime := GT oper3 oper2_prime
+oper2_prime := LTEQ oper3 oper2_prime
+oper2_prime := GTEQ oper3 oper2_prime
+oper2_prime := 
+
+oper3 := oper4 oper3_prime
+oper3_prime := PLUS oper4 oper3_prime
+oper3_prime := MINUS oper4 oper3_prime
+oper3_prime := 
+
+oper4 := oper5 oper4_prime
+oper4_prime := MUL oper5 oper4_prime
+oper4_prime := DIV oper5 oper4_prime
+oper4_prime := 
+
+oper5 := oper6 oper5_prime
+oper5_prime := POWER oper6 oper5_prime
+oper5_prime := MOD oper6 oper5_prime
+oper5_prime := 
+
+oper6 := NOT oper6
+oper6 := MINUS oper6
+oper6 := oper7
+
+oper7 := INCREMENT oper8
+oper7 := DECREMENT oper8
+oper7 := oper8 oper7_prime
+oper7_prime := INCREMENT
+oper7_prime := DECREMENT
+oper7_prime := 
+
+oper8 := rvalue
+oper8 := OBRACKET expression CBRACKET
+
+optional_param_list := expression_list
+optional_param_list := 
+
+lvalue := IDENTIFIER optional_index_list
+
+rvalue := LITERAL_NUMBER
+rvalue := LITERAL_DECIMAL
+rvalue := LITERAL_STRING
+rvalue := TRUE
+rvalue := FALSE
+rvalue := collection_constructor
+rvalue := lvalue optional_function_call
+
+optional_function_call :=  OBRACKET optional_param_list CBRACKET
+optional_function_call := 
+
+optional_index_list := OSBRACKET expression CSBRACKET optional_index_list
+optional_index_list := 
+
+assignment_body := ASSIGN expression
+assignment_body := PLUS_ASSIGN expression
+assignment_body := MINUS_ASSIGN expression
+assignment_body := MUL_ASSIGN expression
+assignment_body := DIV_ASSIGN expression
+
+control_statement := IF OBRACKET expression CBRACKET block optional_else_blocks
+
+optional_else_blocks := ELIF OBRACKET expression CBRACKET block optional_else_blocks
+optional_else_blocks := optional_else_block
+optional_else_block := ELSE block
+optional_else_block := 
+
+control_statement := WHILE OBRACKET expression CBRACKET block
+control_statement := DO block WHILE OBRACKET expression CBRACKET SEMICOLON
+control_statement := FOR OBRACKET declaration_assignment SEMICOLON expression SEMICOLON statement CBRACKET block
+control_statement := FOREACH OBRACKET declaration optional_declaration IN expression CBRACKET block
+
+optional_declaration := COMMA declaration
+optional_declaration := 
+
+statement := RETURN expression
+
+control_statement := SWITCH OBRACKET expression CBRACKET OBRACE case_block default_block CBRACE
+
+case_block := expression COLON block case_block
+case_block := 
+
+default_block := DEFAULT COLON block
+default_block := 
+
+collection_constructor := OSBRACKET expression_list CSBRACKET
+collection_constructor := OBRACE optional_key_list CBRACE
+
+optional_key_list := key optional_key_list_more
+optional_key_list := 
+
+optional_key_list_more := COMMA key optional_key_list_more
+optional_key_list_more := 
+
+key := expression COLON expression
+
+class_def := CLASS IDENTIFIER optional_extension OBRACE member_definitions CBRACE
+
+optional_extension := LT IDENTIFIER
+optional_extension := 
+
+member_definitions := PLUS public_definition member_definitions
+member_definitions := MINUS private_definition member_definitions
+member_definitions := 
+
+public_definition := function_def
+public_definition := declaration
+
+private_definition := function_def
+private_definition := declaration
+
+%%
+
+static Par_Program* programFromTree(Par_Node* root) {
+	Par_Program* ret;
+	
+	if (!root || root->type != NT_NodePair)
+		return NULL;
+		
+	if (!(ret = malloc(sizeof(Par_Program))))
+		return NULL;
+	
+	ret->module      = root->value.pair.first;
+	ret->code        = NULL;
+	ret->definitions = NULL;
+	
+	foreach_node(iter, root->value.pair.second) {
+		
+		Par_Node* val = iter->value.list.node;
+		if (val->type == NT_Statement) {
+			if (ret->code) {
+				NodeList_end(ret->code)->value.list.next = val->value.node;
+			} else {
+				ret->code = val->value.node;
+			}
+		} else if (val->type == NT_Define) {
+			if (ret->definitions) {
+				NodeList_end(ret->definitions)->value.list.next = val->value.node;
+			} else {
+				ret->definitions = val->value.node;
+			}
+		}
+		free(val);
+	}
+	
+	return ret;
+}
+
+Par_Program* Par_parseFile(FILE* file) {
+	
+	Lex_selectFile(file);
+	Par_Node* root = program(NULL);
+	
+	return programFromTree(root);
+}
+
+Par_Program* Par_parseBuffer(char* buffer, size_t length) {
+
+	Lex_selectBuffer(buffer, length);
+	Par_Node* root = program(NULL);
+	
+	return programFromTree(root);
+}

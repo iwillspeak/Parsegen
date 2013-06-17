@@ -93,11 +93,12 @@ class TestParsegen(object):
 		BAZ = Tok_BAZ
 		BAR = Tok_BAR
 		%%
-		main := baz bar_prime
+		main := baz bar_prime BAZ
 		bar  := FOO BAR
 		bar_prime := bar bar_prime
 		bar_prime := 
 		baz := bar_prime
+		baz := BAZ
 		%%
 		// this is a comment
 		"""
@@ -107,17 +108,29 @@ class TestParsegen(object):
 		assert len(exps['main']) == 1
 		assert len(exps['bar']) == 1
 		assert len(exps['bar_prime']) == 2
-		assert len(exps['baz']) == 1
+		assert len(exps['baz']) == 2
 		
 		main = exps['main']
 		bar = exps['bar']
 		bar_prime = exps['bar_prime']
 		baz = exps['baz']
 		
+		# Check the nullability
 		assert not main.is_nullable()
 		assert not bar.is_nullable()
 		assert bar_prime.is_nullable()
 		assert baz.is_nullable()
+		
+		# Check the first sets
+		print(main.first, bar.first, bar_prime.first, baz.first)
+		assert main.first == {'FOO', 'BAZ'}
+		assert bar.first == {'FOO'}
+		assert bar_prime.first == {'FOO'}
+		assert baz.first == {'BAZ', 'FOO'}
+		
+		# Check the follow sets
+		print(main.follow, bar.follow, bar_prime.follow, baz.follow)
+		assert main.follow == set()
 	
 	def test_invalid_expansions(self):
 		
