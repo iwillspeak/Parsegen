@@ -124,12 +124,12 @@ class Grammar(object):
 		"""
 	
 		self._initialise_expansions_state()
-
-		changed = True
-		while changed:
-			changed = False
 		
+		# If we don't have any expansions then we don't need to loop
+		changed = len(self.expansions)
+		
+		while changed:
 			for name, symbol, expansion in self._each_expansion():
 				r = self._update_first_from_expansion(name, symbol, expansion)
 				s = self._update_follow_from_expansion(name, symbol, expansion)
-				changed = changed or r or s
+				changed = r or s
