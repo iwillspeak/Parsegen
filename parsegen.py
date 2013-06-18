@@ -266,22 +266,31 @@ def _write_helpers_to_file(header, file):
 	_write_section_header("utility methods", file)
 	
 	file.write("""
-{0} {1}_get_next_token(void)
-{{
-	return {2};
-}}
+
+static {0} next_token;
+static int token_buffered = 0;
 
 {0} {1}_peek_next_token(void)
 {{
-	static {0} next_token;
-	static int token_buffered = 0;
 	
 	if (!token_buffered) {{
-		next_token = {1}_get_next_token();
+		next_token = {2};
 		token_buffered = 1;
 	}}
 	
-	return next_token
+	return next_token;
+}}
+
+int {1}_eat_token({0} expected_token)
+{{
+	{0} token = {1}_peek_next_token();
+	
+	if (token == expected_token) {{
+		token_buffered = 0;
+		return 1;
+	}}
+	
+	return 0;
 }}
 	""".format(
 		header.get_option("token_type", _prefixed_default(header, 'token_t')),
@@ -295,26 +304,40 @@ def _write_expansions_to_file(header, expansions, file):
 	_write_section_header('main automaton', file)
 	
 	for name, symbol in expansions.items():
-		_write_symbol_function_begin(header, name, file)
+		_write_symbol_function_begin(header, name, symbol, file)
 		for expansion in symbol.expansions:
-			_write_body_for_expansion(header, expansions, expansion, file)
+			_write_body_for_expansion(header, expansions, name, expansion, file)
 		_write_symbol_function_end(header, file)
 
-def _write_symbol_function_begin(header, name, file):
+def _get_counts(header, symbol):
+	node_count = 0
+
+	for expansion in symbol.expansions:
+		n = 0
+		for e in expansion:
+			if not e in header.terminals:
+				n += 1
+		if n > node_count: node_count = n
+	return node_count
+
+def _write_symbol_function_begin(header, name, symbol, file):
+	node_count = _get_counts(header, symbol)
+	
 	file.write("""
-static {0}_token_t* {1}(void)
+static {0}_node_t* {1}(void)
 {{
-	// TODO: Allocate some storage here for the items in the cases
+	{0}_node_t* nodes[{3}];
 	{2} token = {0}_peek_next_token();
 	
 	switch (token) {{
 """.format(
 		_prefixed_default(header),
 		name,
-		header.get_option("token_type", _prefixed_default(header, 'token_t'))
+		header.get_option("token_type", _prefixed_default(header, 'token_t')),
+		node_count
 	))
 
-def _write_body_for_expansion(header, expansions, expansion, file):
+def _write_body_for_expansion(header, expansions, name, expansion, file):
 	
 	if not expansion:
 		return
@@ -327,11 +350,27 @@ def _write_body_for_expansion(header, expansions, expansion, file):
 	
 	for term in terms:
 		file.write('\tcase {0}:\n'.format(header.terminals[term]))
+
+	params = []
+	node = 0
 	
 	for sym in expansion:
-		pass
+		if sym in header.terminals:
+			file.write(
+				"\t\tif (!eat_terminal({0}))\n\t\t\tgoto error;\n".format(
+					header.terminals[sym]))
+			params.append(header.terminals[sym])
+		else:
+			node_temp = "nodes[{0}]".format(node)
+			node += 1
+			file.write("\t\t{0} = {1}();\n".format(
+				node_temp,
+				sym
+			))
+			params.append(node_temp)
 	
-	file.write('\n\n')
+	file.write("\t\ttoken_action_{0}({1});\n".format(name, ", ".join(params)))
+	file.write('\t\tbreak;\n\n')
 	
 def _write_symbol_function_end(header, file):
 	file.write("\t}\n}\n")
