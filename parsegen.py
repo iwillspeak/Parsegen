@@ -211,13 +211,139 @@ def write_grammar(header, expansions, user_code, file=sys.stdout):
 	the given grammar.
 	"""
 	
-	# TODO: write out header properly
-	print(header)
+	_write_header_to_file(header, file)
+	_write_helpers_to_file(header, file)
+
+	_write_expansions_to_file(header, expansions, file)
 	
-	# TODO: write out expansions properly
-	print(epxansions)
+	_write_user_code_to_file(user_code, file)
+
+
+def _write_section_header(heading, file):
+	"""Write Section Header
 	
-	print(user_code)
+	Prints a commented header to mark a section within the output file.
+	"""
+	
+	file.write('\n/' + '*' * 77 + '\n')
+	file.write(" * {0} *\n".format(heading.center(73)))
+	file.write(' ' + '*' * 77 + '/\n')
+
+def _prefixed_default(header, default=None):
+	"""Prefixed Default
+	
+	Returns a the string prefixed with the correct scope. This allows things to
+	be namespaced and the user to control what string is used.
+	"""
+	
+	prefix = header.get_option("prefix", 'yy')
+	return prefix + '_' + default if default else prefix
+
+def _write_header_to_file(header, file):
+	"""Write Header to File
+	
+	Writes the beginning of the file. This is everything that should appear 
+	before the utilities.
+	"""
+	
+	_write_section_header("global includes", file)
+	
+	file.write("""
+#include <stdio.h>
+#include <stdlib.h>
+#include {0}
+	""".format(
+		header.get_option("lexer_include", '<lexer.h>')
+	))
+
+def _write_helpers_to_file(header, file):
+	"""Write Helpers to File
+	
+	Write out any functions and definitions required for the automaton to work.
+	These would usually be the `get` and `peek` definitions.
+	"""
+	
+	_write_section_header("utility methods", file)
+	
+	file.write("""
+{0} {1}_get_next_token(void)
+{{
+	return {2};
+}}
+
+{0} {1}_peek_next_token(void)
+{{
+	static {0} next_token;
+	static int token_buffered = 0;
+	
+	if (!token_buffered) {{
+		next_token = {1}_get_next_token();
+		token_buffered = 1;
+	}}
+	
+	return next_token
+}}
+	""".format(
+		header.get_option("token_type", _prefixed_default(header, 'token_t')),
+		_prefixed_default(header),
+		header.get_option(
+			'lexer_function', _prefixed_default(header, 'get_next_token'))
+	))
+
+def _write_expansions_to_file(header, expansions, file):
+	
+	_write_section_header('main automaton', file)
+	
+	for name, symbol in expansions.items():
+		_write_symbol_function_begin(header, name, file)
+		for expansion in symbol.expansions:
+			_write_body_for_expansion(header, expansions, expansion, file)
+		_write_symbol_function_end(header, file)
+
+def _write_symbol_function_begin(header, name, file):
+	file.write("""
+static {0}_token_t* {1}(void)
+{{
+	// TODO: Allocate some storage here for the items in the cases
+	{2} token = {0}_peek_next_token();
+	
+	switch (token) {{
+""".format(
+		_prefixed_default(header),
+		name,
+		header.get_option("token_type", _prefixed_default(header, 'token_t'))
+	))
+
+def _write_body_for_expansion(header, expansions, expansion, file):
+	
+	if not expansion:
+		return
+	
+	terms = None
+	if expansion and expansion[0] in header.terminals:
+		terms = [expansion[0]]
+	else:
+		terms = expansions[expansion[0]].first
+	
+	for term in terms:
+		file.write('\tcase {0}:\n'.format(header.terminals[term]))
+	
+	for sym in expansion:
+		pass
+	
+	file.write('\n\n')
+	
+def _write_symbol_function_end(header, file):
+	file.write("\t}\n}\n")
+
+def _write_user_code_to_file(code_block, file):
+	"""Write User Code to File
+	
+	Writes a given block of code to the file prefixed with a user code header.
+	"""
+	
+	_write_section_header('user code', file)
+	file.write(code_block)
 
 def _processed_lines(text):
 	"""Processed Lines
@@ -353,6 +479,8 @@ def _update_follow_from_expansion(header, name, symbol, expansion):
 	Updates the follow set for a given symbol based on one of it's expansions.
 	Returns true if an update is made to the symbol and false otherwise.
 	"""
+	
+	# TODO: implement follow sets
 	
 	return False
 

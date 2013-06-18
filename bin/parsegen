@@ -1,0 +1,13 @@
+#! /usr/bin/env python3
+
+import sys
+import parsegen
+
+def main(args):
+	for a in args:
+		header, expansions, user_code = parsegen.parse_file(a)
+		with open(a + '.out', 'w') as file:
+			parsegen.write_grammar(header, expansions, user_code, file)
+
+if __name__ == '__main__':
+	sys.exit(main(sys.argv[1:]))

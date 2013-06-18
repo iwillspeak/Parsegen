@@ -79,6 +79,32 @@ class TestParsegen(object):
 		assert len(e) == 0
 		
 		assert c == "\n\t\tuser_code and stuff\n\t\t"
+		
+	def test_write_grammar(self):
+		header, expansions, user_code = parse_buffer("""
+		
+		WORLD
+		
+		%language = C
+		%prefix = yy
+		%lexer_function = Lex_getNextToken()
+		%token_type = Lex_Token
+
+		%%
+		
+		main := hello
+		
+		hello := WORLD
+		
+		%%
+		
+		hello world
+		
+		""")
+		
+		write_grammar(header, expansions, user_code, sys.stdout)
+		
+		assert False
 
 	def test_parse_buffer_errors(self):
 		

@@ -53,7 +53,13 @@ SWITCH = Tok_SWITCH
 TRUE = Tok_TRUE
 WHILE = Tok_WHILE
 
+%language = c
+%prefix = Par
+%lexer_function = Lex_getNextToken()
+%lexer_include = <lex.h>
+
 %%
+
 program := mod_meta module_body EOF
 
 mod_meta := MODULE IDENTIFIER imports
