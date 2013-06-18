@@ -6,9 +6,10 @@ from parsegen import parse, output
 
 def main(args):
 	for a in args:
-		header, expansions, user_code = parse.parse_file(a)
+		grammar = parse.parse_file(a)
 		with open(a + '.out', 'w') as file:
-			output.write_grammar(header, expansions, user_code, file)
+			output.write_grammar(
+				grammar.header, grammar.expansions, grammar.user_code, file)
 
 if __name__ == '__main__':
 	sys.exit(main(sys.argv[1:]))

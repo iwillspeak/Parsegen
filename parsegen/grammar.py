@@ -95,8 +95,8 @@ class Grammar(object):
 			if not other_sym.is_nullable():
 				break
 		else:
-			# if all of the expansions are nullable and there are no terminals then 
-			# the symbol is nullable too
+			# if all of the expansions are nullable and there are no terminals
+			# then the symbol is nullable too
 			if not symbol.is_nullable():
 				symbol.set_nullable()
 				changed = True
