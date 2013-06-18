@@ -1,8 +1,7 @@
 from distutils.core import setup
 setup(
     name = 'parsegen',
-    packages = ['test'],
-    py_modules = 'parsegen',
+    packages = ['test', 'parsegen'],
     version = '0.0.1',
     description = 'LL(1) Parser Generator',
     author = 'Will Speak (@willspeak)',
