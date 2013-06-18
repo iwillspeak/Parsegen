@@ -20,11 +20,10 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-import sys
-
 from parsegen.errors import ParseError, GrammarError
 from parsegen.data import Header, Symbol
-	
+from parsegen.grammar import Grammar
+
 def parse_buffer(buffer):
 	"""Parse Buffer
 	
@@ -48,7 +47,7 @@ def parse_buffer(buffer):
 	expansions = _compute_sets_for_expansions(header, expansions)
 	
 	# Return the processed parts
-	return header, expansions, user_code
+	return Grammar(header, expansions, user_code)
 
 def parse_file(file):
 	"""Parse File
@@ -71,6 +70,7 @@ def _processed_lines(text):
 	Returns an iterable containing all non-empty lines within the text with
 	comments removed.
 	"""
+	
 	for l in text.split("\n"):
 		l, _, _ = l.partition("#")
 		l = l.strip()
@@ -82,6 +82,7 @@ def _kv_with_sep(opt_line, sep="="):
 	
 	Extracts a key-value pair from the `opt_line` using the separator, if given.
 	"""
+	
 	key, _, val = opt_line.partition(sep)
 	
 	key = key.strip()
@@ -95,6 +96,7 @@ def _add_opt_to_dict(opt_line, dict, sep="="):
 	Extracts a `key = value` pair from the `opt_line` and adds the pair to the
 	`dict`, uaing the optional separator `sep` to separate them.
 	"""
+	
 	key, val = _kv_with_sep(opt_line, sep)
 	
 	dict[key] = val

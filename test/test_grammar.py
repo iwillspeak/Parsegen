@@ -24,35 +24,27 @@
 from nose.tools import *
 
 # Module to test
-from parsegen.parse import parse_buffer
-from parsegen.output import *
+from parsegen.data import *
+from parsegen.grammar import Grammar
 
-class TestOutput(object):
-	"""Test Output
+class TestGrammar(object):
+	"""Test Grammar
 	
-	Test the `output` submodule.
+	Tests the `grammar` submodule.
 	"""
 	
-	def test_write_grammar(self):
-		g = parse_buffer("""
+	def test_create(self):
 		
-		WORLD
+		assert_raises(TypeError, lambda : Grammar())
 		
-		%language = C
-		%prefix = yy
-		%lexer_function = Lex_getNextToken()
-		%token_type = Lex_Token
+		h = Header({"TOKEN": "Tok_TOKEN"}, {})
+		s = Symbol()
+		s.add_expansion("TOKEN")
+		e = {"main": s}
+		g = Grammar(h, e, "")
 		
-		%%
+		assert g != None
 		
-		main := hello
+		assert g.user_code == ""
+		assert g.header == h
 		
-		hello := WORLD
-		
-		%%
-		
-		hello world
-		
-		""")
-		
-		write_grammar(g.header, g.expansions, g.user_code, sys.stdout)

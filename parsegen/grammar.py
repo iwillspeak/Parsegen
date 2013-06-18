@@ -20,39 +20,21 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-# Test helpers
-from nose.tools import *
-
-# Module to test
-from parsegen.parse import parse_buffer
-from parsegen.output import *
-
-class TestOutput(object):
-	"""Test Output
+class Grammar(object):
+	"""Grammar
 	
-	Test the `output` submodule.
+	Represents a parsed grammar file.
+	
+	This object is used to collect together the parts of a grammar to allow 
+	parsed grammars to be passed around more easily. It is also responsible
+	for calculating the sets for each expansion in the grammar from the raw
+	grammar that it is given.
 	"""
 	
-	def test_write_grammar(self):
-		g = parse_buffer("""
-		
-		WORLD
-		
-		%language = C
-		%prefix = yy
-		%lexer_function = Lex_getNextToken()
-		%token_type = Lex_Token
-		
-		%%
-		
-		main := hello
-		
-		hello := WORLD
-		
-		%%
-		
-		hello world
-		
-		""")
-		
-		write_grammar(g.header, g.expansions, g.user_code, sys.stdout)
+	def __init__(self, header, expansions, user_code):
+		self.header = header
+		self.expansions = expansions
+		self.user_code = user_code
+	
+	
+

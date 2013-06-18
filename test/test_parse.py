@@ -37,9 +37,10 @@ class TestParse(object):
 		
 		res = parse_buffer(" %% %% ")
 		assert res != None
-		assert res[2] == " "
+		assert res.user_code == " "
+		assert len(res.expansions) == 0
 		
-		h, e, c = parse_buffer(
+		g = parse_buffer(
 		"""
 		TOKEN = Tok_TOKEN
 		FUZZBAZ
@@ -52,9 +53,13 @@ class TestParse(object):
 		"""
 		)
 		
-		assert type(h) == Header
-		assert type(c) == str
-		assert type(e) == dict
+		assert type(g.header) == Header
+		assert type(g.user_code) == str
+		assert type(g.expansions) == dict
+		
+		h = g.header
+		c = g.user_code
+		e = g.expansions
 		
 		assert h.options["language"] == "c"
 		assert h.options["lexer_entry"] == "Lex_getNextToken();"
@@ -73,7 +78,7 @@ class TestParse(object):
 		assert_raises(ParseError, lambda: parse_buffer(" %% "))
 	
 	def test_expansion_creation(self):
-		_, exps, _ = parse_buffer(
+		exps = parse_buffer(
 		"""
 		%language = c
 		FOO = Tok_FOO
@@ -89,7 +94,7 @@ class TestParse(object):
 		%%
 		// this is a comment
 		"""
-		)
+		).expansions
 		
 		assert len(exps) == 4
 		assert len(exps['main']) == 1
