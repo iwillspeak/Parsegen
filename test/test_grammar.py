@@ -39,7 +39,7 @@ class TestGrammar(object):
 		
 		h = Header({"TOKEN": "Tok_TOKEN"}, {})
 		s = Symbol()
-		s.add_expansion("TOKEN")
+		s.add_expansion(["TOKEN"])
 		e = {"main": s}
 		g = Grammar(h, e, "")
 		
@@ -47,4 +47,5 @@ class TestGrammar(object):
 		
 		assert g.user_code == ""
 		assert g.header == h
-		
+	
+	# The parsing and stuff is tested in the test_parse suite
