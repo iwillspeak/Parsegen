@@ -7,7 +7,7 @@ setup(
     description = 'LL(1) Parser Generator',
     author = 'Will Speak (@willspeak)',
     author_email = 'parsegen@willspeak.me',
-    url = 'http://pythonhosted.org/parsegen',
+    url = 'http://github.com/iwillspeak/Parsegen',
     classifiers = [
         "Programming Language :: Python :: 3",
         "Programming Language :: Python",

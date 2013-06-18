@@ -1,0 +1,12 @@
+parsegen(1) -- LL1 Parser Generator
+===================================
+
+## DESCRIPTION
+
+Parsegen is a parser generator designed to make creating hand-editable top-down
+parsers simple and easy. Parsegen automates the task of generating code to 
+parse a given set of grammar symbols. These actions can be edited later by hand
+or custom code to be executed when each symbol is parsed can be provided in a 
+set of semantic actions defined in the host code.
+
+
