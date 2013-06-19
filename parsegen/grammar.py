@@ -129,7 +129,9 @@ class Grammar(object):
 		changed = len(self.expansions)
 		
 		while changed:
+			changed = False
 			for name, symbol, expansion in self._each_expansion():
 				r = self._update_first_from_expansion(name, symbol, expansion)
 				s = self._update_follow_from_expansion(name, symbol, expansion)
-				changed = r or s
+				# Changed accumulates 'trueness' with changes
+				changed |= r or s
