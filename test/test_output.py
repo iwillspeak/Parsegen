@@ -55,4 +55,4 @@ class TestOutput(object):
 		
 		""")
 		
-		write_grammar(g.header, g.expansions, g.user_code, sys.stdout)
+		write_grammar(g, sys.stdout)

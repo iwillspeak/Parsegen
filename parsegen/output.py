@@ -22,19 +22,19 @@
 
 import sys
 
-def write_grammar(header, expansions, user_code, file=sys.stdout):
+def write_grammar(grammar, file=sys.stdout):
 	"""Write Grammar
 	
 	Write a program out to the file that represents an automaton that parses
 	the given grammar.
 	"""
 	
-	_write_header_to_file(header, file)
-	_write_helpers_to_file(header, file)
+	_write_header_to_file(grammar.header, file)
+	_write_helpers_to_file(grammar.header, file)
 
-	_write_expansions_to_file(header, expansions, file)
+	_write_expansions_to_file(grammar.header, grammar.expansions, file)
 	
-	_write_user_code_to_file(user_code, file)
+	_write_user_code_to_file(grammar.user_code, file)
 
 
 def _write_section_header(heading, file):
