@@ -29,175 +29,192 @@ def write_grammar(grammar, file=sys.stdout):
 	the given grammar.
 	"""
 	
-	_write_header_to_file(grammar.header, file)
-	_write_helpers_to_file(grammar.header, file)
+	OutputContext(grammar).write(file)
 
-	_write_expansions_to_file(grammar.header, grammar.expansions, file)
+class OutputContext(object):
+	"""Output Context
 	
-	_write_user_code_to_file(grammar.user_code, file)
-
-
-def _write_section_header(heading, file):
-	"""Write Section Header
-	
-	Prints a commented header to mark a section within the output file.
+	Represents the context required to write a grammar out to a file.
 	"""
 	
-	file.write('\n/' + '*' * 77 + '\n')
-	file.write(" * {0} *\n".format(heading.center(73)))
-	file.write(' ' + '*' * 77 + '/\n')
+	def __init__(self, grammar):
+		self.grammar = grammar
+	
+	def write(self, file):
+		"""Write
+		
+		Write the formatted source code for the automaton out to the file.
+		"""
+		
+		self._write_header_to_file(file)
+		self._write_helpers_to_file(file)
 
-def _prefixed_default(header, default=None):
-	"""Prefixed Default
+		self._write_expansions_to_file(self.grammar.expansions, file)
 	
-	Returns a the string prefixed with the correct scope. This allows things to
-	be namespaced and the user to control what string is used.
-	"""
-	
-	prefix = header.get_option("prefix", 'yy')
-	return prefix + '_' + default if default else prefix
+		self._write_user_code_to_file(self.grammar.user_code, file)
+		
 
-def _write_header_to_file(header, file):
-	"""Write Header to File
+	def _write_section_header(self, heading, file):
+		"""Write Section Header
 	
-	Writes the beginning of the file. This is everything that should appear 
-	before the utilities.
-	"""
+		Prints a commented header to mark a section within the output file.
+		"""
 	
-	_write_section_header("global includes", file)
-	
-	file.write("""
-#include <stdio.h>
-#include <stdlib.h>
-#include {0}
-	""".format(
-		header.get_option("lexer_include", '<lexer.h>')
-	))
+		file.write('\n/' + '*' * 77 + '\n')
+		file.write(" * {0} *\n".format(heading.center(73)))
+		file.write(' ' + '*' * 77 + '/\n')
 
-def _write_helpers_to_file(header, file):
-	"""Write Helpers to File
+	def _prefixed_default(self, default=None):
+		"""Prefixed Default
 	
-	Write out any functions and definitions required for the automaton to work.
-	These would usually be the `get` and `peek` definitions.
-	"""
+		Returns a the string prefixed with the correct scope. This allows things to
+		be namespaced and the user to control what string is used.
+		"""
 	
-	_write_section_header("utility methods", file)
-	
-	file.write("""
+		prefix = self.grammar.header.get_option("prefix", 'yy')
+		return prefix + '_' + default if default else prefix
 
-static {0} next_token;
-static int token_buffered = 0;
-
-{0} {1}_peek_next_token(void)
-{{
+	def _write_header_to_file(self, file):
+		"""Write Header to File
 	
-	if (!token_buffered) {{
-		next_token = {2};
-		token_buffered = 1;
+		Writes the beginning of the file. This is everything that should appear 
+		before the utilities.
+		"""
+	
+		self._write_section_header("global includes", file)
+	
+		file.write("""
+	#include <stdio.h>
+	#include <stdlib.h>
+	#include {0}
+		""".format(
+			self.grammar.header.get_option("lexer_include", '<lexer.h>')
+		))
+
+	def _write_helpers_to_file(self, file):
+		"""Write Helpers to File
+	
+		Write out any functions and definitions required for the automaton to work.
+		These would usually be the `get` and `peek` definitions.
+		"""
+	
+		self._write_section_header("utility methods", file)
+	
+		file.write("""
+
+	static {0} next_token;
+	static int token_buffered = 0;
+
+	{0} {1}_peek_next_token(void)
+	{{
+	
+		if (!token_buffered) {{
+			next_token = {2};
+			token_buffered = 1;
+		}}
+	
+		return next_token;
 	}}
-	
-	return next_token;
-}}
 
-int {1}_eat_token({0} expected_token)
-{{
-	{0} token = {1}_peek_next_token();
+	int {1}_eat_token({0} expected_token)
+	{{
+		{0} token = {1}_peek_next_token();
 	
-	if (token == expected_token) {{
-		token_buffered = 0;
-		return 1;
+		if (token == expected_token) {{
+			token_buffered = 0;
+			return 1;
+		}}
+	
+		return 0;
 	}}
-	
-	return 0;
-}}
-	""".format(
-		header.get_option("token_type", _prefixed_default(header, 'token_t')),
-		_prefixed_default(header),
-		header.get_option(
-			'lexer_function', _prefixed_default(header, 'get_next_token'))
-	))
+		""".format(
+			self.grammar.header.get_option("token_type", self._prefixed_default('token_t')),
+			self._prefixed_default(),
+			self.grammar.header.get_option(
+				'lexer_function', self._prefixed_default('get_next_token'))
+		))
 
-def _write_expansions_to_file(header, expansions, file):
+	def _write_expansions_to_file(self, expansions, file):
 	
-	_write_section_header('main automaton', file)
+		self._write_section_header('main automaton', file)
 	
-	for name, symbol in expansions.items():
-		_write_symbol_function_begin(header, name, symbol, file)
+		for name, symbol in expansions.items():
+			self._write_symbol_function_begin(name, symbol, file)
+			for expansion in symbol.expansions:
+				self._write_body_for_expansion(expansions, name, expansion, file)
+			self._write_symbol_function_end(file)
+
+	def _get_counts(self, symbol):
+		node_count = 0
+
 		for expansion in symbol.expansions:
-			_write_body_for_expansion(header, expansions, name, expansion, file)
-		_write_symbol_function_end(header, file)
+			n = 0
+			for e in expansion:
+				if not e in self.grammar.header.terminals:
+					n += 1
+			if n > node_count: node_count = n
+		return node_count
 
-def _get_counts(header, symbol):
-	node_count = 0
+	def _write_symbol_function_begin(self, name, symbol, file):
+		node_count = self._get_counts(symbol)
+	
+		file.write("""
+	static {0}_node_t* {1}(void)
+	{{
+		{0}_node_t* nodes[{3}];
+		{2} token = {0}_peek_next_token();
+	
+		switch (token) {{
+	""".format(
+			self._prefixed_default(),
+			name,
+			self.grammar.header.get_option("token_type", self._prefixed_default('token_t')),
+			node_count
+		))
 
-	for expansion in symbol.expansions:
-		n = 0
-		for e in expansion:
-			if not e in header.terminals:
-				n += 1
-		if n > node_count: node_count = n
-	return node_count
-
-def _write_symbol_function_begin(header, name, symbol, file):
-	node_count = _get_counts(header, symbol)
+	def _write_body_for_expansion(self, expansions, name, expansion, file):
 	
-	file.write("""
-static {0}_node_t* {1}(void)
-{{
-	{0}_node_t* nodes[{3}];
-	{2} token = {0}_peek_next_token();
+		if not expansion:
+			return
 	
-	switch (token) {{
-""".format(
-		_prefixed_default(header),
-		name,
-		header.get_option("token_type", _prefixed_default(header, 'token_t')),
-		node_count
-	))
-
-def _write_body_for_expansion(header, expansions, name, expansion, file):
-	
-	if not expansion:
-		return
-	
-	terms = None
-	if expansion and expansion[0] in header.terminals:
-		terms = [expansion[0]]
-	else:
-		terms = expansions[expansion[0]].first
-	
-	for term in terms:
-		file.write('\tcase {0}:\n'.format(header.terminals[term]))
-
-	params = []
-	node = 0
-	
-	for sym in expansion:
-		if sym in header.terminals:
-			file.write(
-				"\t\tif (!eat_terminal({0}))\n\t\t\tgoto error;\n".format(
-					header.terminals[sym]))
-			params.append(header.terminals[sym])
+		terms = None
+		if expansion and expansion[0] in self.grammar.header.terminals:
+			terms = [expansion[0]]
 		else:
-			node_temp = "nodes[{0}]".format(node)
-			node += 1
-			file.write("\t\t{0} = {1}();\n".format(
-				node_temp,
-				sym
-			))
-			params.append(node_temp)
+			terms = expansions[expansion[0]].first
 	
-	file.write("\t\ttoken_action_{0}({1});\n".format(name, ", ".join(params)))
-	file.write('\t\tbreak;\n\n')
-	
-def _write_symbol_function_end(header, file):
-	file.write("\t}\n}\n")
+		for term in terms:
+			file.write('\tcase {0}:\n'.format(self.grammar.header.terminals[term]))
 
-def _write_user_code_to_file(code_block, file):
-	"""Write User Code to File
+		params = []
+		node = 0
 	
-	Writes a given block of code to the file prefixed with a user code header.
-	"""
+		for sym in expansion:
+			if sym in self.grammar.header.terminals:
+				file.write(
+					"\t\tif (!eat_terminal({0}))\n\t\t\tgoto error;\n".format(
+						self.grammar.header.terminals[sym]))
+				params.append(self.grammar.header.terminals[sym])
+			else:
+				node_temp = "nodes[{0}]".format(node)
+				node += 1
+				file.write("\t\t{0} = {1}();\n".format(
+					node_temp,
+					sym
+				))
+				params.append(node_temp)
 	
-	_write_section_header('user code', file)
-	file.write(code_block)
+		file.write("\t\ttoken_action_{0}({1});\n".format(name, ", ".join(params)))
+		file.write('\t\tbreak;\n\n')
+	
+	def _write_symbol_function_end(self, file):
+		file.write("\t}\n}\n")
+
+	def _write_user_code_to_file(self, code_block, file):
+		"""Write User Code to File
+	
+		Writes a given block of code to the file prefixed with a user code header.
+		"""
+	
+		self._write_section_header('user code', file)
+		file.write(code_block)
