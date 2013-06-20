@@ -24,6 +24,7 @@
 from nose.tools import *
 
 # Module to test
+from parsegen.data import Namespace
 from parsegen.parse import parse_buffer
 from parsegen.output import *
 
@@ -56,3 +57,39 @@ class TestOutput(object):
 		""")
 		
 		write_grammar(g, sys.stdout)
+	
+	def test_options(self):
+
+		g = parse_buffer("""
+		
+		WORLD
+		
+		%language = C
+		%prefix = yy
+		%lexer_function = Lex_getNextToken()
+		%token_type = Lex_Token
+		
+		%%
+		
+		main := hello
+		
+		hello := WORLD
+		
+		%%
+		
+		hello world
+		
+		""")
+		
+		ctx = OutputContext(g, {"prefix": "bar_"})
+		
+		opts = {
+			"prefix": "bar_",
+			"lexer_function": "Lex_getNextToken()",
+			"token_type": "Lex_Token",
+			"node_type": "bar_node_t",
+			"token_type_access": ''
+		}
+		
+		assert ctx.options == Namespace(opts)
+		

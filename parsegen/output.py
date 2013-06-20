@@ -21,6 +21,7 @@
 # THE SOFTWARE.
 
 import sys
+import parsegen.data as data
 
 def write_grammar(grammar, file=sys.stdout):
 	"""Write Grammar
@@ -37,8 +38,11 @@ class OutputContext(object):
 	Represents the context required to write a grammar out to a file.
 	"""
 	
-	def __init__(self, grammar):
+	def __init__(self, grammar, option_overrides={}):
 		self.grammar = grammar
+		options = grammar.header.options.copy()
+		options.update(option_overrides)
+		self.options = self._process_options(options)
 	
 	def write(self, file):
 		"""Write
@@ -218,3 +222,45 @@ class OutputContext(object):
 	
 		self._write_section_header('user code', file)
 		file.write(code_block)
+	
+	def get_option_definitions(self):
+		"""Get Option Definitions
+		
+		Returns an iterable containing tuples that define the options that this
+		output context accepts.
+		
+		Options are of the form (option_key, prefixed, default) where
+		option_key is the string that identifies the option, prefixed states if
+		the option should have a prefix appended to it's default value and
+		default is the value to use if no option is provided for this key. 
+		"""
+		return [
+			# The prefix to use on default values and parser functions
+			("prefix", False, "yy_"),
+			# The type that is used to store tokens
+			("token_type", True, "token_t"),
+			# The type that is used to store ast nodes, returned from actions
+			("node_type", True, "node_t"),
+			# The function that is used to get the next token from the lexer
+			("lexer_function", True, "get_next_token()"),
+			# The code require to access the type of a token, useful if tokens
+			# are pointer types.
+			("token_type_access", False, "")
+		]
+	
+	def _process_options(self, options_hash):
+		"""Process Options
+		
+		Takes a hash of options and returns a Namespace containing the values
+		that will be used in the output.
+		"""
+		
+		options = {}
+		
+		for option, prefixed, default in self.get_option_definitions():
+			if prefixed:
+				default = options['prefix'] + default
+			val = options_hash.get(option, default)
+			options[option] = val
+		
+		return data.Namespace(options)

@@ -128,3 +128,13 @@ class Namespace(object):
 	def __init__(self, dict):
 		self.__dict__.update(dict)
 		
+	def __repr__(self):
+		return repr(self.__dict__)
+	
+	def __eq__(self, other):
+		try:
+			return self.__dict__ == other.__dict__
+		except:
+			return False
+
+		
