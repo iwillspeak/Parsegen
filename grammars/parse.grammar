@@ -54,7 +54,7 @@ TRUE = Tok_TRUE
 WHILE = Tok_WHILE
 
 %language = c
-%prefix = Par
+%prefix = Par_
 %token_type = Lex_Token
 %lexer_function = Lex_getNextToken()
 %lexer_include = <lex.h>

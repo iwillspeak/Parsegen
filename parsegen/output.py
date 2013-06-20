@@ -68,16 +68,6 @@ class OutputContext(object):
 		file.write(" * {0} *\n".format(heading.center(73)))
 		file.write(' ' + '*' * 77 + '/\n')
 
-	def _prefixed_default(self, default=None):
-		"""Prefixed Default
-	
-		Returns a the string prefixed with the correct scope. This allows things to
-		be namespaced and the user to control what string is used.
-		"""
-	
-		prefix = self.grammar.header.get_option("prefix", 'yy')
-		return prefix + '_' + default if default else prefix
-
 	def _write_header_to_file(self, file):
 		"""Write Header to File
 	
@@ -87,13 +77,8 @@ class OutputContext(object):
 	
 		self._write_section_header("global includes", file)
 	
-		file.write("""
-	#include <stdio.h>
-	#include <stdlib.h>
-	#include {0}
-		""".format(
-			self.grammar.header.get_option("lexer_include", '<lexer.h>')
-		))
+		file.write('#include <stdio.h>\n#include <stdlib.h>\n#include "{0}"'
+			.format(self.options.lexer_include))
 
 	def _write_helpers_to_file(self, file):
 		"""Write Helpers to File
@@ -132,10 +117,9 @@ class OutputContext(object):
 		return 0;
 	}}
 		""".format(
-			self.grammar.header.get_option("token_type", self._prefixed_default('token_t')),
-			self._prefixed_default(),
-			self.grammar.header.get_option(
-				'lexer_function', self._prefixed_default('get_next_token'))
+			self.options.token_type,
+			self.options.prefix,
+			self.options.lexer_function
 		))
 
 	def _write_expansions_to_file(self, expansions, file):
@@ -160,21 +144,18 @@ class OutputContext(object):
 		return node_count
 
 	def _write_symbol_function_begin(self, name, symbol, file):
+		
 		node_count = self._get_counts(symbol)
-	
-		file.write("""
-	static {0}_node_t* {1}(void)
-	{{
-		{0}_node_t* nodes[{3}];
-		{2} token = {0}_peek_next_token();
-	
-		switch (token) {{
-	""".format(
-			self._prefixed_default(),
-			name,
-			self.grammar.header.get_option("token_type", self._prefixed_default('token_t')),
-			node_count
-		))
+		
+		out = "static {0} {1}(void)\n{{\n".format(
+			self.options.node_type, name)
+		out += "\t{0} nodes[{1}];\n".format(
+			self.options.node_type, node_count)
+		out += "\t{0} token {1}_peek_next_token();\n\tswitch(token) {{\n".format(
+			self.options.token_type, self.options.prefix)
+		
+		file.write(out)
+
 
 	def _write_body_for_expansion(self, expansions, name, expansion, file):
 	
@@ -212,7 +193,7 @@ class OutputContext(object):
 		file.write('\t\tbreak;\n\n')
 	
 	def _write_symbol_function_end(self, file):
-		file.write("\t}\n}\n")
+		file.write("\t}\n}\n\n")
 
 	def _write_user_code_to_file(self, code_block, file):
 		"""Write User Code to File
@@ -240,9 +221,11 @@ class OutputContext(object):
 			# The type that is used to store tokens
 			("token_type", True, "token_t"),
 			# The type that is used to store ast nodes, returned from actions
-			("node_type", True, "node_t"),
+			("node_type", True, "node_t*"),
 			# The function that is used to get the next token from the lexer
 			("lexer_function", True, "get_next_token()"),
+			# The header file to include to get the lexer functions
+			("lexer_include", False, "lexer.h"),
 			# The code require to access the type of a token, useful if tokens
 			# are pointer types.
 			("token_type_access", False, "")
