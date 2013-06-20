@@ -87,7 +87,7 @@ class TestOutput(object):
 			"prefix": "bar_",
 			"lexer_function": "Lex_getNextToken()",
 			"token_type": "Lex_Token",
-			"node_type": "bar_node_t",
+			"node_type": "bar_node_t*",
 			"token_type_access": '',
 			"lexer_include": "lexer.h"
 		}
