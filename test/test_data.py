@@ -141,3 +141,31 @@ class TestSymbol(object):
 		
 		assert s.follow == {'foo', 'bar', 'baz'}
 		
+class TestNamespace(object):
+	"""Test Namespace
+	
+	Tests the Namespacing object. This object is responsible for allowing easier
+	read_access to a dict.
+	"""
+	
+	def test_create(self):
+		
+		n = Namespace({})
+		assert n != None
+		
+		n = Namespace({"foo": "bar"})
+		assert n != None
+		assert n.foo == "bar"
+	
+	def test_invalid(self):
+		
+		assert_raises(TypeError, lambda : Namespace())
+	
+	def test_dict_access(self):
+		
+		d = {"foo": 14, "bar": 1243, "baz": "dsaf"}
+		
+		n = Namespace(d)
+		
+		for k, v in d.items():
+			assert getattr(n, k) == v	

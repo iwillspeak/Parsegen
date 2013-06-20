@@ -117,3 +117,14 @@ class Symbol(object):
 		"""
 		
 		self.follow = self._union_set_with_values(self.follow, values)
+
+class Namespace(object):
+	"""Namespace
+	
+	Represents a read-only access to a dictionary through the . operator. Used
+	to allow easy access to options.
+	"""
+	
+	def __init__(self, dict):
+		self.__dict__.update(dict)
+		
