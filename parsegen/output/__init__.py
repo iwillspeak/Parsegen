@@ -34,7 +34,7 @@ def write_grammar(grammar, file=sys.stdout):
 	the given grammar.
 	"""
 	
-	language = grammar.header.options.get("language", "c")
+	language = grammar.header.options.get("language", "pretty_print")
 	ctx = language_hash[_normalise_language_name(language)]
 	ctx(grammar).write(file)
 	
@@ -174,4 +174,4 @@ class CallbackOutputContext(OutputContext):
 
 # Import all the languages here. This is done at the bottom to ensure that all
 # the definitions needed are in scope
-from . import c
+from . import c, pretty_print

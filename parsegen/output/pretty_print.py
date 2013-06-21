@@ -20,78 +20,25 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-# Test helpers
-from nose.tools import *
-import sys
-
-# Module to test
-from parsegen.utils import Namespace
-from parsegen.parse import parse_buffer
 from parsegen.output import *
 
-class TestOutput(object):
-	"""Test Output
+class PrettyPrintContext(CallbackOutputContext):
+	"""Pretty Print Context
 	
-	Test the `output` submodule.
+	Prints out a human readable representation of the computed grammar.
 	"""
 	
-	def test_write_grammar(self):
-		g = parse_buffer("""
-		
-		WORLD
-		
-		%prefix = yy
-		%lexer_function = Lex_getNextToken()
-		%token_type = Lex_Token
-		
-		%%
-		
-		main := hello main
-		main := 
-		
-		hello := WORLD
-		
-		%%
-		
-		hello world
-		
-		""")
-		
-		write_grammar(g, sys.stdout)
-		
-	def test_options(self):
+	def __init__(self, *args):
+		CallbackOutputContext.__init__(self, *args)
+		self.register_callback(self._output_symbol, CallbackOutputContext.MAIN)
+	
+	def _output_symbol(self, name, symbol, file):
+		kind = "NULLABLE" if symbol.is_nullable() else "COMPULSORY"
+		file.write("%s SYMBOL %s {\n" % (kind, name))
+		for exp in symbol.expansions:
+			predictions = self.predictions_for_expansion(exp)
+			file.write("  {%s}\n" % ", ".join([s for s in predictions]))
+			file.write("  ~> %s\n" % ", ".join(exp))
+		file.write("}\n\n")
 
-		g = parse_buffer("""
-		
-		WORLD
-		
-		%language = C
-		%prefix = yy
-		%lexer_function = Lex_getNextToken()
-		%token_type = Lex_Token
-		
-		%%
-		
-		main := hello
-		
-		hello := WORLD
-		
-		%%
-		
-		hello world
-		
-		""")
-		
-		ctx = OutputContext(g, {"prefix": "bar_"})
-		
-		opts = {
-			"prefix": "bar_",
-			"lexer_function": "Lex_getNextToken()",
-			"token_type": "Lex_Token",
-			"node_type": "bar_node_t*",
-			"token_type_access": '',
-			"lexer_include": "lexer.h"
-		}
-		
-		assert ctx.options == Namespace(opts)
-		
+register_context("pretty_print", PrettyPrintContext)
