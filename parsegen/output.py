@@ -143,14 +143,13 @@ class OutputContext(object):
 		
 		node_count = self._get_counts(symbol)
 		
-		print(
-			"static {0} {1}(void)\n{{\n".format(self.options.node_type, name),
-			"\t{0} nodes[{1}];\n".format(self.options.node_type, node_count),
+		ofile.write("static {0} {1}(void)\n{{\n".format(
+			self.options.node_type, name))
+		ofile.write("\t{0} nodes[{1}];\n".format(
+			self.options.node_type, node_count))
+		ofile.write(
 			"\t{0} token {1}_peek_next_token();\n\tswitch(token) {{\n".format(
-				self.options.token_type, self.options.prefix),
-			file=ofile
-		)
-
+				self.options.token_type, self.options.prefix))
 
 	def _write_body_for_expansion(self, expansions, name, expansion, file):
 	

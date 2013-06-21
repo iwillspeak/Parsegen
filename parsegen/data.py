@@ -137,6 +137,9 @@ class Namespace(object):
 	# Not hashable
 	__hash__ = None
 	
+	def __cmp__(self, other):
+		return self.__neq__(other)
+	
 	def __eq__(self, other):
 		try:
 			return self.__dict__ == other.__dict__
