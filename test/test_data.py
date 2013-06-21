@@ -170,7 +170,7 @@ class TestNamespace(object):
 		for k, v in d.items():
 			assert getattr(n, k) == v
 	
-	def test_compar(self):
+	def test_compare(self):
 		d = {"hello": "2134", "world": "rasdfa"}
 		
 		n1 = Namespace(d)
