@@ -64,9 +64,9 @@ class OutputContext(object):
 		Prints a commented header to mark a section within the output file.
 		"""
 	
-		file.write('\n/' + '*' * 77 + '\n')
+		file.write('/' + '*' * 77 + '\n')
 		file.write(" * {0} *\n".format(heading.center(73)))
-		file.write(' ' + '*' * 77 + '/\n')
+		file.write(' ' + '*' * 77 + '/\n\n')
 
 	def _write_header_to_file(self, file):
 		"""Write Header to File
@@ -77,50 +77,46 @@ class OutputContext(object):
 	
 		self._write_section_header("global includes", file)
 	
-		file.write('#include <stdio.h>\n#include <stdlib.h>\n#include "{0}"'
+		file.write('#include <stdio.h>\n#include <stdlib.h>\n#include "{0}"\n\n'
 			.format(self.options.lexer_include))
 
 	def _write_helpers_to_file(self, file):
 		"""Write Helpers to File
 	
-		Write out any functions and definitions required for the automaton to work.
-		These would usually be the `get` and `peek` definitions.
+		Write out any functions and definitions required for the automaton to
+		work. These would usually be the `eat` and `peek` definitions.
 		"""
 	
 		self._write_section_header("utility methods", file)
 	
-		file.write("""
-
-	static {0} next_token;
-	static int token_buffered = 0;
-
-	{0} {1}_peek_next_token(void)
-	{{
-	
-		if (!token_buffered) {{
-			next_token = {2};
-			token_buffered = 1;
-		}}
-	
-		return next_token;
-	}}
-
-	int {1}_eat_token({0} expected_token)
-	{{
-		{0} token = {1}_peek_next_token();
-	
-		if (token == expected_token) {{
-			token_buffered = 0;
-			return 1;
-		}}
-	
-		return 0;
-	}}
-		""".format(
-			self.options.token_type,
-			self.options.prefix,
-			self.options.lexer_function
-		))
+		# Global variables to keep track of tokens from the lexer
+		file.write("static " + self.options.token_type + "next_token;\n")
+		file.write("static int token_buffered = 0;\n\n")
+		
+		# Write out the body of the _peek_next_token funciton
+		file.write(
+			self.options.token_type + " " + self.options.prefix +
+			"_peek_next_token(void)\n{\n")
+		file.write("\tif (!token_buffered) {\n")
+		file.write("\t\tnext_token = " + self.options.lexer_function + ";\n")
+		file.write("\t\ttoken_buffered = 1;\n")
+		file.write("\t}\n")
+		file.write("\treturn next_token;\n")
+		file.write("}\n\n")
+		
+		file.write(
+			"int " + self.options.prefix + "_eat_token("+ self.options.token_type +
+			" expected_token)\n{\n")
+		file.write(
+			"\t" + self.options.token_type + " tok = " + self.options.prefix +
+			"_peek_next_token();\n")
+			
+		file.write("\tif (token == expected_token) {\n")
+		file.write("\t\ttoken_buffered = 0;\n")
+		file.write("\t\treturn 1;\n")
+		file.write("\t}\n")
+		file.write("\treturn 0;\n")
+		file.write("}\n\n")
 
 	def _write_expansions_to_file(self, expansions, file):
 	
@@ -143,18 +139,17 @@ class OutputContext(object):
 			if n > node_count: node_count = n
 		return node_count
 
-	def _write_symbol_function_begin(self, name, symbol, file):
+	def _write_symbol_function_begin(self, name, symbol, ofile):
 		
 		node_count = self._get_counts(symbol)
 		
-		out = "static {0} {1}(void)\n{{\n".format(
-			self.options.node_type, name)
-		out += "\t{0} nodes[{1}];\n".format(
-			self.options.node_type, node_count)
-		out += "\t{0} token {1}_peek_next_token();\n\tswitch(token) {{\n".format(
-			self.options.token_type, self.options.prefix)
-		
-		file.write(out)
+		print(
+			"static {0} {1}(void)\n{{\n".format(self.options.node_type, name),
+			"\t{0} nodes[{1}];\n".format(self.options.node_type, node_count),
+			"\t{0} token {1}_peek_next_token();\n\tswitch(token) {{\n".format(
+				self.options.token_type, self.options.prefix),
+			file=ofile
+		)
 
 
 	def _write_body_for_expansion(self, expansions, name, expansion, file):
