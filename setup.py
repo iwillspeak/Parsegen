@@ -1,9 +1,10 @@
 from distutils.core import setup
+import parsegen.version
 setup(
     name = 'parsegen',
     packages = ['test', 'parsegen'],
 	scripts = ['bin/parsegen'],
-    version = '0.0.1',
+    version = parsegen.version.VERSION,
     description = 'LL(1) Parser Generator',
     author = 'Will Speak (@willspeak)',
     author_email = 'parsegen@willspeak.me',
