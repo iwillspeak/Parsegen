@@ -24,73 +24,53 @@
 from nose.tools import *
 
 # Module to test
-from parsegen.utils import Namespace
-from parsegen.parse import parse_buffer
-from parsegen.output import *
+from parsegen.utils import *
 
-class TestOutput(object):
-	"""Test Output
+class TestNamespace(object):
+	"""Test Namespace
 	
-	Test the `output` submodule.
+	Tests the Namespacing object. This object is responsible for allowing easier
+	read_access to a dict.
 	"""
 	
-	def test_write_grammar(self):
-		g = parse_buffer("""
+	def test_create(self):
 		
-		WORLD
+		n = Namespace({})
+		assert n != None
 		
-		%language = C
-		%prefix = yy
-		%lexer_function = Lex_getNextToken()
-		%token_type = Lex_Token
-		
-		%%
-		
-		main := hello
-		
-		hello := WORLD
-		
-		%%
-		
-		hello world
-		
-		""")
-		
-		write_grammar(g, sys.stdout)
+		n = Namespace({"foo": "bar"})
+		assert n != None
+		assert n.foo == "bar"
 	
-	def test_options(self):
-
-		g = parse_buffer("""
+	def test_invalid(self):
 		
-		WORLD
+		assert_raises(TypeError, lambda : Namespace())
+	
+	def test_dict_access(self):
 		
-		%language = C
-		%prefix = yy
-		%lexer_function = Lex_getNextToken()
-		%token_type = Lex_Token
+		d = {"foo": 14, "bar": 1243, "baz": "dsaf"}
 		
-		%%
+		n = Namespace(d)
 		
-		main := hello
+		for k, v in d.items():
+			assert getattr(n, k) == v
+	
+	def test_compare(self):
+		d = {"hello": "2134", "world": "rasdfa"}
 		
-		hello := WORLD
+		n1 = Namespace(d)
+		n2 = Namespace(d)
+		n3 = Namespace({})
+	
+		assert n1 == n2
+		assert not n1 != n2
+		assert n2 != n3
+		assert not n1 == n3
+	
+	def test_contains(self):
 		
-		%%
+		n = Namespace({"foo": "", "bar": "string"})
 		
-		hello world
-		
-		""")
-		
-		ctx = OutputContext(g, {"prefix": "bar_"})
-		
-		opts = {
-			"prefix": "bar_",
-			"lexer_function": "Lex_getNextToken()",
-			"token_type": "Lex_Token",
-			"node_type": "bar_node_t*",
-			"token_type_access": '',
-			"lexer_include": "lexer.h"
-		}
-		
-		assert ctx.options == Namespace(opts)
-		
+		assert "foo" in n
+		assert "bar" in n
+		assert not "baz" in n

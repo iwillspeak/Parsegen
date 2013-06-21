@@ -21,8 +21,7 @@
 # THE SOFTWARE.
 
 import sys
-import parsegen.data as data
-from parsegen.utils import lazyprop
+from parsegen.utils import lazyprop, Namespace
 
 def write_grammar(grammar, file=sys.stdout):
 	"""Write Grammar
@@ -91,7 +90,7 @@ class OutputContext(object):
 			val = self._raw_options.get(option, default)
 			options[option] = val
 		
-		return data.Namespace(options)
+		return Namespace(options)
 	
 	def _merged_options(self, options_base, options_merge):
 		"""Merged Options
