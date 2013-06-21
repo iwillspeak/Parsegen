@@ -22,6 +22,7 @@
 
 # Test helpers
 from nose.tools import *
+import sys
 
 # Module to test
 from parsegen.utils import Namespace
@@ -39,7 +40,6 @@ class TestOutput(object):
 		
 		WORLD
 		
-		%language = C
 		%prefix = yy
 		%lexer_function = Lex_getNextToken()
 		%token_type = Lex_Token

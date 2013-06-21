@@ -21,7 +21,11 @@
 # THE SOFTWARE.
 
 import sys
+import re
 from parsegen.utils import lazyprop, Namespace
+
+# Dict indexed by uppercase comon name for language
+language_hash = {}
 
 def write_grammar(grammar, file=sys.stdout):
 	"""Write Grammar
@@ -30,7 +34,15 @@ def write_grammar(grammar, file=sys.stdout):
 	the given grammar.
 	"""
 	
-	COutputContext(grammar).write(file)
+	language = grammar.header.options.get("language", "c")
+	ctx = language_hash[_normalise_language_name(language)]
+	ctx(grammar).write(file)
+	
+def _normalise_language_name(name):
+	return re.sub("[\-_\ ]", "-", name.strip()).upper()
+	
+def register_context(language, context):
+	language_hash[_normalise_language_name(language)] = context
 
 class OutputContext(object):
 	"""Output Context
@@ -77,8 +89,8 @@ class OutputContext(object):
 	def options(self):
 		"""Options
 		
-		Lazily computes and returns a Namespace containing the options namespace
-		that will be used in the output.
+		Lazily computes and returns a Namespace containing the options that will
+		be used in the output.
 		"""
 		
 		options = {}
@@ -102,150 +114,49 @@ class OutputContext(object):
 		if options_merge:
 			opts.update(options_merge)
 		return opts
+
+class CallbackOutputContext(OutputContext):
+	"""Callback Output Context
 	
-class COutputContext(OutputContext):
-	"""C Output Context
-	
-	Represents the context required to write out to a C file.
+	Output context that uses callbacks to write things to a stream. This is
+	intended for implementing output contexts where the logic for the context
+	is better expressed in python.
 	"""
 	
-	def _write_section_header(self, heading, file):
-		"""Write Section Header
+	PRE, MAIN, POST = range(3)
 	
-		Prints a commented header to mark a section within the output file.
-		"""
-	
-		file.write('/' + '*' * 77 + '\n')
-		file.write(" * {0} *\n".format(heading.center(73)))
-		file.write(' ' + '*' * 77 + '/\n\n')
-
-	def _write_header_to_file(self, file):
-		"""Write Header to File
-	
-		Writes the beginning of the file. This is everything that should appear 
-		before the utilities.
-		"""
-	
-		self._write_section_header("global includes", file)
-	
-		file.write('#include <stdio.h>\n#include <stdlib.h>\n#include "{0}"\n\n'
-			.format(self.options.lexer_include))
-
-	def _write_helpers_to_file(self, file):
-		"""Write Helpers to File
-	
-		Write out any functions and definitions required for the automaton to
-		work. These would usually be the `eat` and `peek` definitions.
-		"""
-	
-		self._write_section_header("utility methods", file)
-	
-		# Global variables to keep track of tokens from the lexer
-		file.write("static " + self.options.token_type + "next_token;\n")
-		file.write("static int token_buffered = 0;\n\n")
+	def __init__(self, *args):
+		OutputContext.__init__(self, *args)
+		self.callbacks = {
+			self.PRE : [],
+			self.MAIN : [],
+			self.POST : []
+		}
 		
-		# Write out the body of the _peek_next_token funciton
-		file.write(
-			self.options.token_type + " " + self.options.prefix +
-			"_peek_next_token(void)\n{\n")
-		file.write("\tif (!token_buffered) {\n")
-		file.write("\t\tnext_token = " + self.options.lexer_function + ";\n")
-		file.write("\t\ttoken_buffered = 1;\n")
-		file.write("\t}\n")
-		file.write("\treturn next_token;\n")
-		file.write("}\n\n")
+	def write(self, file):
+		"""Write
 		
-		file.write(
-			"int " + self.options.prefix + "_eat_token("+ self.options.token_type +
-			" expected_token)\n{\n")
-		file.write(
-			"\t" + self.options.token_type + " tok = " + self.options.prefix +
-			"_peek_next_token();\n")
-			
-		file.write("\tif (token == expected_token) {\n")
-		file.write("\t\ttoken_buffered = 0;\n")
-		file.write("\t\treturn 1;\n")
-		file.write("\t}\n")
-		file.write("\treturn 0;\n")
-		file.write("}\n\n")
-
-	def _write_expansions_to_file(self, expansions, file):
-	
-		self._write_section_header('main automaton', file)
-	
-		for name, symbol in expansions.items():
-			self._write_symbol_function_begin(name, symbol, file)
-			for expansion in symbol.expansions:
-				self._write_body_for_expansion(expansions, name, expansion, file)
-			self._write_symbol_function_end(file)
-
-	def _get_counts(self, symbol):
-		node_count = 0
-
-		for expansion in symbol.expansions:
-			n = 0
-			for e in expansion:
-				if not e in self.grammar.header.terminals:
-					n += 1
-			if n > node_count: node_count = n
-		return node_count
-
-	def _write_symbol_function_begin(self, name, symbol, ofile):
-		
-		node_count = self._get_counts(symbol)
-		
-		ofile.write("static {0} {1}(void)\n{{\n".format(
-			self.options.node_type, name))
-		ofile.write("\t{0} nodes[{1}];\n".format(
-			self.options.node_type, node_count))
-		ofile.write(
-			"\t{0} token {1}_peek_next_token();\n\tswitch(token) {{\n".format(
-				self.options.token_type, self.options.prefix))
-
-	def _write_body_for_expansion(self, expansions, name, expansion, file):
-	
-		if not expansion:
-			return
-	
-		terms = None
-		if expansion and expansion[0] in self.grammar.header.terminals:
-			terms = [expansion[0]]
-		else:
-			terms = expansions[expansion[0]].first
-	
-		for term in terms:
-			file.write('\tcase {0}:\n'.format(self.grammar.header.terminals[term]))
-
-		params = []
-		node = 0
-	
-		for sym in expansion:
-			if sym in self.grammar.header.terminals:
-				file.write(
-					"\t\tif (!eat_terminal({0}))\n\t\t\tgoto error;\n".format(
-						self.grammar.header.terminals[sym]))
-				params.append(self.grammar.header.terminals[sym])
-			else:
-				node_temp = "nodes[{0}]".format(node)
-				node += 1
-				file.write("\t\t{0} = {1}();\n".format(
-					node_temp,
-					sym
-				))
-				params.append(node_temp)
-	
-		file.write("\t\ttoken_action_{0}({1});\n".format(name, ", ".join(params)))
-		file.write('\t\tbreak;\n\n')
-	
-	def _write_symbol_function_end(self, file):
-		file.write("\t}\n}\n\n")
-
-	def _write_user_code_to_file(self, code_block, file):
-		"""Write User Code to File
-	
-		Writes a given block of code to the file prefixed with a user code header.
+		Calls the methods that have been registered for each stage to write the
+		output to the file.
 		"""
+		
+		for callback in self.callbacks[self.PRE]:
+			callback(file)
+		
+		for callback in self.callbacks[self.MAIN]:
+			for name, symbol in self.grammar.expansions.items():
+				callback(name, symbol, file)
+		
+		for callback in self.callbacks[self.POST]:
+			callback(file)
 	
-		self._write_section_header('user code', file)
-		file.write(code_block)
-	
+	def register_callback(self, callback, stage=MAIN):
+		
+		if not stage in [self.MAIN, self.PRE, self.POST]:
+			raise ArgumentError("unknown callback stage '%s'" % stage)
+		
+		self.callbacks[stage].append(callback)
+
+# Import all the languages here. This is done at the bottom to ensure that all
+# the definitions needed are in scope
+from . import c
