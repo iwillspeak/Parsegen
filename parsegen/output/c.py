@@ -141,6 +141,9 @@ class COutputContext(CallbackOutputContext):
 		ofile.write(
 			"\t{0} token {1}_peek_next_token();\n\tswitch(token) {{\n".format(
 				self.options.token_type, self.options.prefix))
+		if symbol.is_nullable():
+			ofile.write("\tdefault:\n")
+			ofile.write("\t\treturn 0;\n\n")
 
 	def _write_body_for_expansion(self, name, expansion, file):
 		"""Write Body for Expansion
@@ -150,13 +153,10 @@ class COutputContext(CallbackOutputContext):
 		"""
 	
 		if not expansion:
+			# Lambda transition, handled later
 			return
 	
-		terms = None
-		if expansion and expansion[0] in self.grammar.header.terminals:
-			terms = [expansion[0]]
-		else:
-			terms = self.grammar.expansions[expansion[0]].first
+		terms = self.predictions_for_expansion(expansion)
 	
 		for term in terms:
 			file.write(

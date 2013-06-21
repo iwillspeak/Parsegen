@@ -69,6 +69,21 @@ class OutputContext(object):
 		# are pointer types.
 		self.register_option("token_type_access", False, "")
 	
+	def predictions_for_expansion(self, expansion):
+		"""Predictions for Expansion
+		
+		Returns a list of tokens that predict the given expansion. This can be
+		empty if the expansion is a lambda transition, otherwise it will be
+		the first set of the first symbol in the expansion.
+		"""
+		
+		if not expansion:
+			return []
+		elif expansion[0] in self.grammar.header.terminals:
+			return [expansion[0]]
+		else:
+			return self.grammar.expansions[expansion[0]].first
+	
 	def write(self, file):
 		"""Write
 		
