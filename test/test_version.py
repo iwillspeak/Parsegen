@@ -20,8 +20,14 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-import parsegen.version as _version
+# Module to test
+import parsegen
 
-__version__ = _version.VERSION
+"""Test Version Information
 
-__all__ = [ 'data', 'errors', 'grammar', 'output', 'parse', 'version' ]
+Checks that the version is consistent. No point checking the actual value of it
+as that will change all the time.
+"""
+
+def test_version():
+	assert parsegen.__version__ == parsegen.version.VERSION
