@@ -168,4 +168,24 @@ class TestNamespace(object):
 		n = Namespace(d)
 		
 		for k, v in d.items():
-			assert getattr(n, k) == v	
+			assert getattr(n, k) == v
+	
+	def test_compar(self):
+		d = {"hello": "2134", "world": "rasdfa"}
+		
+		n1 = Namespace(d)
+		n2 = Namespace(d)
+		n3 = Namespace({})
+	
+		assert n1 == n2
+		assert not n1 != n2
+		assert n2 != n3
+		assert not n1 == n3
+	
+	def test_contains(self):
+		
+		n = Namespace({"foo": "", "bar": "string"})
+		
+		assert "foo" in n
+		assert "bar" in n
+		assert not "baz" in n

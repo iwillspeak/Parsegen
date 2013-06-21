@@ -122,19 +122,28 @@ class Namespace(object):
 	"""Namespace
 	
 	Represents a read-only access to a dictionary through the . operator. Used
-	to allow easy access to options.
+	to allow easy access to options and suchlike.
 	"""
 	
 	def __init__(self, dict):
 		self.__dict__.update(dict)
-		
+	
 	def __repr__(self):
 		return repr(self.__dict__)
+	
+	def __contains__(self, item):
+		return item in self.__dict__
+
+	# Not hashable
+	__hash__ = None
 	
 	def __eq__(self, other):
 		try:
 			return self.__dict__ == other.__dict__
 		except:
 			return False
+	
+	def __neq__(self, other):
+		return not self.__eq__(other)
 
 		
