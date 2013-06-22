@@ -59,6 +59,7 @@ class MustacheContext(OutputContext):
 	
 	def _transform_expansion(self, exp):
 		predictions = self.predictions_for_expansion(exp)
+		predictions = [self.grammar.header.terminals[t] for t in predictions]
 		return {
 			'predictions' : predictions,
 			'tokens' : self._transform_tokens(exp)

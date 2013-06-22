@@ -77,6 +77,19 @@ class TestParse(object):
 		assert_raises(ParseError, lambda: parse_buffer(" %% %% %% "))
 		assert_raises(ParseError, lambda: parse_buffer(" %% "))
 	
+	def test_token_extraction(self):
+		h = parse_buffer("""
+		TOKEN = Token_value
+		TOKEN1234 = second_token_value
+		AUTOCOPY
+		%%
+		%%
+		""").header
+		
+		assert h.terminals['TOKEN'] == 'Token_value'
+		assert h.terminals['TOKEN1234'] == 'second_token_value'
+		assert h.terminals['AUTOCOPY'] == 'AUTOCOPY'
+	
 	def test_expansion_creation(self):
 		exps = parse_buffer(
 		"""

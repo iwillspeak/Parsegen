@@ -74,7 +74,7 @@ static int token_buffered = 0;
 		// TERMINAL {{name}}
 		tokens[{{index}}] = {{options.prefix}}_ensure_token({{name}});
 		if (tokens[{{index}}] == 0)
-			 goto error;
+			goto error;
 		{{/terminal}}
 		{{^terminal}}
 		// NONTERM {{name}}
@@ -91,8 +91,8 @@ static int token_buffered = 0;
 			{{/tokens}}
 		)
 		break;
-{{/expansions}}
 		
+{{/expansions}}
 {{#nullable}}
 	default: /* Lambda transition */
 		return 0;
