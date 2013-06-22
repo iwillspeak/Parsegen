@@ -17,7 +17,6 @@ Something like:
 
 ## MEDIUM
 
-* Add `name` to Symbol object. This will allow iterations over the  symbols within a grammar without having to use `.items()` all the time. It should cut down on the number of parameters needed in some functions too.
 * Add some form method to the Symbol object that would allow it to return the number of terminals and nonterminals in it. This may have to wait for the creation of the Token wrapper class.
 * Create an Expansion object to be responsible for computing the predictions for an expansion and providing some form of signature that can be used to uniquely identify expansions within a symbol.
 * Create a Token wrapper class that will expose a unified interface for terminal and nonterminals.
