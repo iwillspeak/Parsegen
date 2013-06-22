@@ -20,6 +20,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
+from parsegen.errors import SymbolNameError
+
 class Header(object):
 	"""Grammar File Header
 	
@@ -47,14 +49,18 @@ class Symbol(object):
 	Represents the expansions of a given symbol.
 	"""
 	
-	def __init__(self):
+	def __init__(self, name):
+		self.name = self._process_name(name)
 		self.expansions = []
 		self.nullable = False
 		self.first = set()
 		self.follow = set()
 	
-	def __len__(self):
-		return len(self.expansions)
+	def _process_name(self, name):
+		name = name.strip()
+		if name and len(name.split()) != 1:
+			raise SymbolNameError(name)
+		return name
 	
 	def add_expansion(self, expansion):
 		"""Add Expansion

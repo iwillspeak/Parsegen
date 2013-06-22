@@ -25,6 +25,7 @@ from nose.tools import *
 
 # Module to test
 from parsegen.data import *
+from parsegen.errors import *
 
 class TestHeader(object):
 	"""Test Header
@@ -69,74 +70,73 @@ class TestSymbol(object):
 	symbol.
 	"""
 	
+	def setup(self):
+		self.sym = Symbol("foo")
+	
 	def test_create(self):
-		s = Symbol()
 		
-		assert s != None
+		assert self.sym != None
 		
-		assert_raises(TypeError, lambda: Symbol("some test string"))
+		assert_raises(SymbolNameError, lambda: Symbol("some test string"))
+		assert_raises(SymbolNameError, lambda: Symbol("hello\tworld"))
 		
-		assert hasattr(s, "expansions")
+		assert hasattr(self.sym, "expansions")
+		assert self.sym.name == "foo"
+		assert Symbol("foo-bar").name == "foo-bar"
+		assert Symbol("hello_world").name == 'hello_world'
+		
+		assert Symbol("    whitespace_before").name == "whitespace_before"
+		assert Symbol("whitespace_after\t\t").name == "whitespace_after"
 
 		
 	def test_add_expansion(self):
 		
-		s = Symbol()
+		assert len(self.sym.expansions) == 0
 		
-		assert len(s.expansions) == 0
+		self.sym.add_expansion(["this", "is", "an", "expansion"])
 		
-		s.add_expansion(["this", "is", "an", "expansion"])
+		assert len(self.sym.expansions) == 1
 		
-		assert len(s.expansions) == 1
+		self.sym.add_expansion(["shorter", "expansion"])
 		
-		s.add_expansion(["shorter", "expansion"])
+		assert len(self.sym.expansions) == 2
 		
-		assert len(s.expansions) == 2
+		self.sym.add_expansion([])
 		
-		s.add_expansion([])
-		
-		assert len(s.expansions) == 3
-		
-		assert len(s.expansions) == len(s)
+		assert len(self.sym.expansions) == 3
 
 	def test_nullable(self):
 		
-		s = Symbol()
+		assert self.sym.is_nullable()
 		
-		assert s.is_nullable()
+		self.sym.add_expansion(["not", "nullable"])
 		
-		s.add_expansion(["not", "nullable"])
+		assert not self.sym.is_nullable()
 		
-		assert not s.is_nullable()
+		self.sym.add_expansion([])
 		
-		s.add_expansion([])
-		
-		assert s.is_nullable()
+		assert self.sym.is_nullable()
 		
 	def test_first_set(self):
 		
-		s = Symbol()
+		assert self.sym.first == set()
 		
-		assert s.first == set()
+		self.sym.add_first({'foo', 'bar'})
 		
-		s.add_first({'foo', 'bar'})
+		assert self.sym.first == {'foo', 'bar'}
 		
-		assert s.first == {'foo', 'bar'}
+		self.sym.add_first(['bar', 'baz'])
 		
-		s.add_first(['bar', 'baz'])
-		
-		assert s.first == {'foo', 'bar', 'baz'}
+		assert self.sym.first == {'foo', 'bar', 'baz'}
 		
 	def test_follow_set(self):
 		
-		s = Symbol()
+		assert self.sym.follow == set()
 		
-		assert s.follow == set()
+		self.sym.add_follow({'foo', 'bar'})
 		
-		s.add_follow({'foo', 'bar'})
+		assert self.sym.follow == {'foo', 'bar'}
 		
-		assert s.follow == {'foo', 'bar'}
+		self.sym.add_follow(['bar', 'baz'])
 		
-		s.add_follow(['bar', 'baz'])
-		
-		assert s.follow == {'foo', 'bar', 'baz'}
+		assert self.sym.follow == {'foo', 'bar', 'baz'}

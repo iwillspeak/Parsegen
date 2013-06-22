@@ -38,7 +38,7 @@ class TestGrammar(object):
 		assert_raises(TypeError, lambda : Grammar())
 		
 		h = Header({"TOKEN": "Tok_TOKEN"}, {})
-		s = Symbol()
+		s = Symbol("main")
 		s.add_expansion(["TOKEN"])
 		e = {"main": s}
 		g = Grammar(h, e, "")

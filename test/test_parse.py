@@ -97,10 +97,10 @@ class TestParse(object):
 		).expansions
 		
 		assert len(exps) == 4
-		assert len(exps['main']) == 1
-		assert len(exps['bar']) == 1
-		assert len(exps['bar_prime']) == 2
-		assert len(exps['baz']) == 2
+		assert len(exps['main'].expansions) == 1
+		assert len(exps['bar'].expansions) == 1
+		assert len(exps['bar_prime'].expansions) == 2
+		assert len(exps['baz'].expansions) == 2
 		
 		main = exps['main']
 		bar = exps['bar']

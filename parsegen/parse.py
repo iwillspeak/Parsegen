@@ -133,7 +133,7 @@ def _process_expansions(expansions):
 	for l in _processed_lines(expansions):
 		sym, exp = _kv_with_sep(l, ":=")
 		
-		s = exps.get(sym, Symbol())
+		s = exps.get(sym, Symbol(sym))
 		s.add_expansion(exp.split())
 		exps[sym] = s
 		

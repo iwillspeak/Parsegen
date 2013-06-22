@@ -61,3 +61,19 @@ class GrammarError(ParsegenError):
 		"""
 		
 		ParsegenError.__init__(self, 'grammar error', string)
+
+class SymbolNameError(ParsegenError):
+	"""Symbol Name Error
+	
+	Represents an invalid token or symbol name.
+	"""
+	
+	def __init__(self, name):
+		"""SymbolNameError Constructor
+		
+		Takes the string that represents the invalid name and constructs an
+		error string from it.
+		"""
+		
+		err = "invalid token or symbol name %s" % name
+		ParsegenError.__init__(self, "name error", err)
