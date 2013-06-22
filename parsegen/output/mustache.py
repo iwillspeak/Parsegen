@@ -39,15 +39,15 @@ class MustacheContext(OutputContext):
 	@lazyprop
 	def symbols(self):
 		return [
-			self._transform_symbol(name, symbol)
-			for name, symbol in self.grammar.expansions.items()
+			self._transform_symbol(symbol)
+			for symbol in self.grammar.expansions.values()
 		]
 		
-	def _transform_symbol(self, name, symbol):
+	def _transform_symbol(self, symbol):
 		nterms, terms = self._get_counts(symbol)
 		
 		return {
-			'name' : name,
+			'name' : symbol.name,
 			'nullable' : symbol.is_nullable(),
 			'nonterminal_count' : nterms,
 			'terminal_count' : terms,

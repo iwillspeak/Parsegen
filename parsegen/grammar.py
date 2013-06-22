@@ -50,9 +50,9 @@ class Grammar(object):
 		error_nterm_expand = "expansion for nonterminal {0}"
 		error_undefined = "{0} is not defined as a terminal or nonterminal"
 	
-		for name, symbol in self.expansions.items():
-			if name in self.header.terminals:
-				raise GrammarError(error_nterm_expand.format(name))
+		for symbol in self.expansions.values():
+			if symbol.name in self.header.terminals:
+				raise GrammarError(error_nterm_expand.format(symbol.name))
 		
 			for exp in symbol.expansions:
 				# This creates the initial first sets for each symbol
@@ -71,11 +71,11 @@ class Grammar(object):
 		for each expansion in grammar.
 		"""
 	
-		for name, symbol in self.expansions.items():
+		for symbol in self.expansions.values():
 			for expansion in symbol.expansions:
-				yield name, symbol, expansion
+				yield symbol, expansion
 
-	def _update_first_from_expansion(self, name, symbol, expansion):
+	def _update_first_from_expansion(self, symbol, expansion):
 		"""Update First from Expansion
 	
 		Updates the first set from a given symbol based on one of it's
@@ -103,7 +103,7 @@ class Grammar(object):
 	
 		return changed
 
-	def _update_follow_from_expansion(self, name, symbol, expansion):
+	def _update_follow_from_expansion(self, symbol, expansion):
 		"""Update Follow from Expansion
 	
 		Updates the follow set for a given symbol based on one of it's expansions.
@@ -130,8 +130,8 @@ class Grammar(object):
 		
 		while changed:
 			changed = False
-			for name, symbol, expansion in self._each_expansion():
-				r = self._update_first_from_expansion(name, symbol, expansion)
-				s = self._update_follow_from_expansion(name, symbol, expansion)
+			for symbol, expansion in self._each_expansion():
+				r = self._update_first_from_expansion(symbol, expansion)
+				s = self._update_follow_from_expansion(symbol, expansion)
 				# Changed accumulates 'trueness' with changes
 				changed |= r or s

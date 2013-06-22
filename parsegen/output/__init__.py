@@ -27,16 +27,17 @@ from parsegen.utils import lazyprop, Namespace
 # Dict indexed by uppercase comon name for language
 language_hash = {}
 
-def write_grammar(grammar, file=sys.stdout):
+def write_grammar(grammar, file=sys.stdout, options=None, language=None):
 	"""Write Grammar
 	
 	Write a program out to the file that represents an automaton that parses
 	the given grammar.
 	"""
 	
-	language = grammar.header.options.get("language", "pretty_print")
+	if not language:
+		language = grammar.header.options.get("language", "pretty_print")
 	ctx = language_hash[_normalise_language_name(language)]
-	ctx(grammar).write(file)
+	ctx(grammar, options).write(file)
 	
 def _normalise_language_name(name):
 	return re.sub("[\-_\ ]", "-", name.strip()).upper()

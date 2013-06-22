@@ -33,9 +33,9 @@ class PrettyPrintContext(CallbackOutputContext):
 		CallbackOutputContext.__init__(self, *args)
 		self.register_callback(self._output_symbol, CallbackOutputContext.MAIN)
 	
-	def _output_symbol(self, name, symbol, file):
+	def _output_symbol(self, symbol, file):
 		kind = "NULLABLE" if symbol.is_nullable() else "COMPULSORY"
-		file.write("%s SYMBOL %s {\n" % (kind, name))
+		file.write("%s SYMBOL %s {\n" % (kind, symbol.name))
 		for exp in symbol.expansions:
 			predictions = self.predictions_for_expansion(exp)
 			file.write("  {%s}\n" % ", ".join([s for s in predictions]))

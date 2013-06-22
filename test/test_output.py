@@ -57,7 +57,8 @@ class TestOutput(object):
 		
 		""")
 		
-		write_grammar(g, sys.stdout)
+		write_grammar(g, sys.stdout, language="pretty_print")
+		write_grammar(g, sys.stdout, language="c")
 		
 	def test_options(self):
 

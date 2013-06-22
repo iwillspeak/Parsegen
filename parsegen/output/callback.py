@@ -30,8 +30,8 @@ class CallbackOutputContext(OutputContext):
 			callback(file)
 		
 		for callback in self.callbacks[self.MAIN]:
-			for name, symbol in self.grammar.expansions.items():
-				callback(name, symbol, file)
+			for symbol in self.grammar.expansions.values():
+				callback(symbol, file)
 		
 		for callback in self.callbacks[self.POST]:
 			callback(file)
