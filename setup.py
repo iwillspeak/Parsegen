@@ -23,6 +23,7 @@ setup(
 		"Operating System :: OS Independent"
 	],
 	# Things to Distribute
-	packages = ['test', 'parsegen'],
+	packages = ['test', 'parsegen', 'parsegen.output'],
+	package_data = {'parsegen.output': ['*.mustache']},
 	scripts = ['bin/parsegen']
 )
