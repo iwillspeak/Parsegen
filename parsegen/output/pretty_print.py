@@ -20,7 +20,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-from parsegen.output import *
+from parsegen.output import register_context
+from parsegen.output.callback import CallbackOutputContext
 
 class PrettyPrintContext(CallbackOutputContext):
 	"""Pretty Print Context

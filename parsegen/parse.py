@@ -89,7 +89,7 @@ def _kv_with_sep(opt_line, sep="="):
 	
 	return key, val
 
-def _add_opt_to_dict(opt_line, dict, sep="="):
+def _add_opt_to_dict(opt_line, dict, sep="=", mirror_empty=False):
 	"""Add Option to Dictionary
 	
 	Extracts a `key = value` pair from the `opt_line` and adds the pair to the
@@ -97,6 +97,9 @@ def _add_opt_to_dict(opt_line, dict, sep="="):
 	"""
 	
 	key, val = _kv_with_sep(opt_line, sep)
+	
+	if mirror_empty and not val:
+		val = key
 	
 	dict[key] = val
 
@@ -114,7 +117,7 @@ def _process_header(header):
 		if l[:1] == "%":
 			_add_opt_to_dict(l[1:], opts)
 		else:
-			_add_opt_to_dict(l, terms)
+			_add_opt_to_dict(l, terms, mirror_empty=True)
 	
 	return Header(terms, opts)
 

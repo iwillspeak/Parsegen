@@ -1,0 +1,110 @@
+
+#include <stdlib.h>
+#include <stdio.h>
+{{#options.lexer_include}}
+#include {{{.}}}
+{{/options.lexer_include}}
+
+/*****************************************************************************
+ *                              Utilities                                    *
+ *****************************************************************************/
+
+static {{options.token_type}} next_token;
+static int token_buffered = 0;
+
+{{options.token_type}}
+{{options.prefix}}_peek_next_token(void)
+{
+	if (!token_buffered) {
+		next_token = {{optionsself.lexer_function}};
+		token_buffered = 1;
+	}
+	
+	return next_token;
+}
+
+{{options.token_type}}
+{{options.prefix}}_ensure_token({{options.token_flag_type}} expected)
+{
+	{{options.token_type}} tok = {{options.prefix}}__peek_next_token();
+	
+	if (tok{{options.token_access}} == expected) {
+		return tok;
+	}
+	
+	return 0;
+}
+
+/*****************************************************************************
+ *                            Main Automaton                                 *
+ *****************************************************************************/
+
+ /* Forward declarations */
+
+{{#symbols}}
+{{#expansions}}
+{{options.node_type}} 
+{{name}}_sem_{{#tokens}}{{#terminal}}t{{/terminal}}{{^terminal}}n{{/terminal}}{{/tokens}}
+	({{#tokens}}{{#terminal}}{{options.token_type}}{{/terminal}}{{^terminal}}{{options.node_type}}{{/terminal}}{{^last}},{{/last}}{{/tokens}});
+{{/expansions}}
+{{/symbols}}
+
+{{#symbols}}
+{{options.node_type}} {{name}}(void);
+{{/symbols}}
+
+ /* Implementation */
+ 
+{{#symbols}}
+{{options.node_type}} {{name}}(void)
+{
+	{{options.token_type}} tokens[{{terminal_count}}];
+	{{options.node_type}}  nodes[{{nonterminal_count}}];
+	
+
+	{{options.token_type}} next_tok = {{options.prefix}}_peek_next_token();
+	
+	switch (next_tok{{options.token_access}}) {
+{{#expansions}}
+	{{#predictions}}
+	case {{.}}:
+	{{/predictions}}
+	{{#tokens}}
+		{{#terminal}}
+		// TERMINAL {{name}}
+		tokens[{{index}}] = {{options.prefix}}_ensure_token({{name}});
+		if (tokens[{{index}}] == 0)
+			 goto error;
+		{{/terminal}}
+		{{^terminal}}
+		// NONTERM {{name}}
+		nodes[{{index}}] = {{name}}();
+		{{^nullable}}
+		if (!something)
+			goto error;
+		{{/nullable}}
+		{{/terminal}}
+	{{/tokens}}
+		return {{name}}_sem_{{#tokens}}{{#terminal}}t{{/terminal}}{{^terminal}}n{{/terminal}}{{/tokens}}(
+			{{#tokens}}
+			{{#terminal}}tokens{{/terminal}}{{^terminal}}nodes{{/terminal}}[{{index}}]{{^last}},{{/last}}
+			{{/tokens}}
+		)
+		break;
+{{/expansions}}
+		
+{{#nullable}}
+	default: /* Lambda transition */
+		return 0;
+{{/nullable}}
+	}
+	
+error:
+	return 0;
+}
+
+{{/symbols}}
+/*****************************************************************************
+ *                               User Code                                   *
+ *****************************************************************************/
+{{grammar.user_code}}

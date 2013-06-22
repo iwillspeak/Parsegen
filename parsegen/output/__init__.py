@@ -58,16 +58,16 @@ class OutputContext(object):
 			grammar.header.options, option_overrides)
 		
 		# The type that is used to store tokens
-		self.register_option("token_type", True, "token_t")
+		self.register_option("token_type", "token_t", True)
 		# The type that is used to store ast nodes, returned from actions
-		self.register_option("node_type", True, "node_t*")
+		self.register_option("node_type", "node_t*", True)
 		# The function that is used to get the next token from the lexer
-		self.register_option("lexer_function", True, "get_next_token()")
+		self.register_option("lexer_function", "get_next_token()", True)
 		# The header file to include to get the lexer functions
-		self.register_option("lexer_include", False, "lexer.h")
+		self.register_option("lexer_include", "lexer.h")
 		# The code require to access the type of a token, useful if tokens
 		# are pointer types.
-		self.register_option("token_type_access", False, "")
+		self.register_option("token_type_access", "")
 	
 	def predictions_for_expansion(self, expansion):
 		"""Predictions for Expansion
@@ -78,24 +78,11 @@ class OutputContext(object):
 		"""
 		
 		if not expansion:
-			return []
+			return set()
 		elif expansion[0] in self.grammar.header.terminals:
-			return [expansion[0]]
+			return {expansion[0]}
 		else:
 			return self.grammar.expansions[expansion[0]].first
-	
-	def write(self, file):
-		"""Write
-		
-		Write the formatted source code for the automaton out to the file.
-		"""
-		
-		self._write_header_to_file(file)
-		self._write_helpers_to_file(file)
-
-		self._write_expansions_to_file(self.grammar.expansions, file)
-	
-		self._write_user_code_to_file(self.grammar.user_code, file)
 	
 	def register_option(self, option_name, default="", prefix=False):
 		self.option_definitions.append((option_name, default, prefix))
@@ -111,7 +98,7 @@ class OutputContext(object):
 		options = {}
 		
 		options['prefix'] = self._raw_options.get('prefix', self.default_prefix)
-		for option, prefixed, default in self.option_definitions:
+		for option, default, prefixed in self.option_definitions:
 			if prefixed:
 				default = options['prefix'] + default
 			val = self._raw_options.get(option, default)
@@ -130,47 +117,24 @@ class OutputContext(object):
 			opts.update(options_merge)
 		return opts
 
-class CallbackOutputContext(OutputContext):
-	"""Callback Output Context
-	
-	Output context that uses callbacks to write things to a stream. This is
-	intended for implementing output contexts where the logic for the context
-	is better expressed in python.
-	"""
-	
-	PRE, MAIN, POST = range(3)
-	
-	def __init__(self, *args):
-		OutputContext.__init__(self, *args)
-		self.callbacks = {
-			self.PRE : [],
-			self.MAIN : [],
-			self.POST : []
-		}
+	def _get_counts(self, symbol):
+		"""Get Counts
 		
-	def write(self, file):
-		"""Write
-		
-		Calls the methods that have been registered for each stage to write the
-		output to the file.
+		Returns the number of nodes in a given symbol that are nonterminals and
+		terminals.
 		"""
-		
-		for callback in self.callbacks[self.PRE]:
-			callback(file)
-		
-		for callback in self.callbacks[self.MAIN]:
-			for name, symbol in self.grammar.expansions.items():
-				callback(name, symbol, file)
-		
-		for callback in self.callbacks[self.POST]:
-			callback(file)
-	
-	def register_callback(self, callback, stage=MAIN):
-		
-		if not stage in [self.MAIN, self.PRE, self.POST]:
-			raise ArgumentError("unknown callback stage '%s'" % stage)
-		
-		self.callbacks[stage].append(callback)
+		node_count, term_count = 0, 0
+
+		for expansion in symbol.expansions:
+			n,t = 0,0
+			for e in expansion:
+				if e in self.grammar.header.terminals:
+					t += 1
+				else:
+					n += 1
+			if n > node_count: node_count = n
+			if t > term_count: term_count = t
+		return node_count, term_count
 
 # Import all the languages here. This is done at the bottom to ensure that all
 # the definitions needed are in scope
