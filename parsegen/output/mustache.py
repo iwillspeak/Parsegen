@@ -21,7 +21,7 @@
 # THE SOFTWARE.
 
 from parsegen.output import OutputContext
-from parsegen.utils import lazyprop, Namespace
+from parsegen.utils import lazyprop, Struct
 import pystache
 import os
 	

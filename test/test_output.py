@@ -25,7 +25,7 @@ from nose.tools import *
 import sys
 
 # Module to test
-from parsegen.utils import Namespace
+from parsegen.utils import Struct
 from parsegen.parse import parse_buffer
 from parsegen.output import *
 
@@ -94,5 +94,5 @@ class TestOutput(object):
 			"lexer_include": "lexer.h"
 		}
 		
-		assert ctx.options == Namespace(opts)
+		assert ctx.options == Struct(opts)
 		

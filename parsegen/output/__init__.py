@@ -22,7 +22,7 @@
 
 import sys
 import re
-from parsegen.utils import lazyprop, Namespace
+from parsegen.utils import lazyprop, Struct
 
 # Dict indexed by uppercase comon name for language
 language_hash = {}
@@ -92,7 +92,7 @@ class OutputContext(object):
 	def options(self):
 		"""Options
 		
-		Lazily computes and returns a Namespace containing the options that will
+		Lazily computes and returns a Struct containing the options that will
 		be used in the output.
 		"""
 		
@@ -105,7 +105,7 @@ class OutputContext(object):
 			val = self._raw_options.get(option, default)
 			options[option] = val
 		
-		return Namespace(options)
+		return Struct(options)
 	
 	def _merged_options(self, options_base, options_merge):
 		"""Merged Options

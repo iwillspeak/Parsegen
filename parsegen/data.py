@@ -33,7 +33,7 @@ class Header(object):
 		"""Header Constructor
 		
 		Creates a new header from a given set of terminals and options. Both of
-		these should be `dict`s containing mappings from the option/terminal 
+		these should be `dict`s containing mappings from the option/terminal
 		names to their values.
 		"""
 		
@@ -123,5 +123,3 @@ class Symbol(object):
 		"""
 		
 		self.follow = self._union_set_with_values(self.follow, values)
-
-		

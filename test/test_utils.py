@@ -26,8 +26,8 @@ from nose.tools import *
 # Module to test
 from parsegen.utils import *
 
-class TestNamespace(object):
-	"""Test Namespace
+class TestStruct(object):
+	"""Test Struct
 	
 	Tests the Namespacing object. This object is responsible for allowing easier
 	read_access to a dict.
@@ -35,22 +35,29 @@ class TestNamespace(object):
 	
 	def test_create(self):
 		
-		n = Namespace({})
+		n = Struct({})
 		assert n != None
 		
-		n = Namespace({"foo": "bar"})
+		n = Struct({"foo": "bar"})
 		assert n != None
 		assert n.foo == "bar"
+
+		n = Struct({"foo": 1}, bar=2)
+		assert n.foo == 1
+		assert n.bar == 2
+		
+		n = Struct({"foo": 1}, foo=2)
+		assert n.foo == 2
 	
 	def test_invalid(self):
 		
-		assert_raises(TypeError, lambda : Namespace())
+		assert_raises(TypeError, lambda : Struct())
 	
 	def test_dict_access(self):
 		
 		d = {"foo": 14, "bar": 1243, "baz": "dsaf"}
 		
-		n = Namespace(d)
+		n = Struct(d)
 		
 		for k, v in d.items():
 			assert getattr(n, k) == v
@@ -58,9 +65,9 @@ class TestNamespace(object):
 	def test_compare(self):
 		d = {"hello": "2134", "world": "rasdfa"}
 		
-		n1 = Namespace(d)
-		n2 = Namespace(d)
-		n3 = Namespace({})
+		n1 = Struct(d)
+		n2 = Struct(d)
+		n3 = Struct({})
 	
 		assert n1 == n2
 		assert not n1 != n2
@@ -69,7 +76,7 @@ class TestNamespace(object):
 	
 	def test_contains(self):
 		
-		n = Namespace({"foo": "", "bar": "string"})
+		n = Struct({"foo": "", "bar": "string"})
 		
 		assert "foo" in n
 		assert "bar" in n

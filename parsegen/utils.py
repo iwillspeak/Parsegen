@@ -20,16 +20,17 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-class Namespace(object):
-	"""Namespace
+class Struct(object):
+	"""Struct
 	
 	Represents a read-only access to a dictionary through the . operator. Used
 	to allow easy access to options and suchlike. Should be both Python 2.7 and
 	3.x compatible.
 	"""
 	
-	def __init__(self, dict):
+	def __init__(self, dict, **kwargs):
 		self.__dict__.update(dict)
+		self.__dict__.update(kwargs)
 	
 	def __repr__(self):
 		return repr(self.__dict__)
