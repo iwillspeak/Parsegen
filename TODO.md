@@ -24,5 +24,13 @@ Something like:
 
 ## LOW
 
-	* Add doc-comments to all files
-* Ensure that lines don't get too long
+## HOUSEKEEPING
+
+* Add doc-comments to all files. Doc comments should be of the form:
+
+    """Function Name
+
+    Paragraph or short description of the function.
+    """"
+
+* Ensure that lines don't get too long. All lines should be hard-wrapped at 80 characters.
