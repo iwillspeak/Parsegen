@@ -9,4 +9,15 @@ parse a given set of grammar symbols. These actions can be edited later by hand
 or custom code to be executed when each symbol is parsed can be provided in a 
 set of semantic actions defined in the host code.
 
+## USEAGE
+
+`parsegen [-o <output_file>] <input_file> [<option>=<value>]*`
+
+  * `-o <output_file>`:
+    Specify the file that the resulting program should be written to.
+  * `<input_file>`:
+    The grammar file to process.
+  * `<option>=<value>`:
+    Zero or more option overrides. Values passed on the command line overwrite any values that are specified in the source file. This allows you to, for instance, translate a grammar file into a different language than would otherwise be used or use a platform specific value for one of the settings.
+
 

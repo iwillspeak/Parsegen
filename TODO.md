@@ -31,6 +31,6 @@ Something like:
     """Function Name
 
     Paragraph or short description of the function.
-    """"
+    """
 
 * Ensure that lines don't get too long. All lines should be hard-wrapped at 80 characters.

@@ -95,4 +95,3 @@ class TestOutput(object):
 		}
 		
 		assert ctx.options == Struct(opts)
-		
