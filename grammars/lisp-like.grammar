@@ -1,0 +1,66 @@
+# Lisp-like grammar file
+#
+# This file contains the grammar definitions for a simple LISP. It is intended
+# to provide a more complex example than that in `expressions.grammar`
+
+OPEN_PAREN
+CLOSE_PAREN
+IDENTIFIER
+LITERAL_NUMBER
+LITERAL_STRING
+OPER_DEFUN
+OPER_LAMBDA
+OPER_LET
+QUOTE
+ATOM_NILL
+
+%%
+
+# zero or more sexpressions
+sexpr_list := sexpr sexpr_list
+sexpr_list := 
+
+# a single sexpression
+sexpr := OPEN_PAREN expr_form sexpr_list CLOSE_PAREN
+sexpr := QUOTE sexpr
+sexpr := IDENTIFIER
+sexpr := LITERAL_NUMBER
+sexpr := LITERAL_STRING
+sexpr := ATOM_NILL
+
+# The 'form' of the sexpression, we use this to special case some expressions.
+# This should lead to most invalid code becomming a syntax error.
+expr_form := IDENTIFIER
+expr_form := OPER_DEFUN IDENTIFIER identifier_list
+expr_form := OPER_LET IDENTIFIER sexpr
+expr_form := OPER_LAMBDA identifier_list
+
+# Parenthasised list of identifiers, as used for parameters.
+identifier_list := OPEN_PAREN identifiers CLOSE_PAREN
+identifier_list := ATOM_NILL
+identifiers := IDENTIFIER identifiers
+identifiers := 
+
+%%
+
+##
+# Parse File
+#
+# Parse a whole flile into a list of sexpressions. This is for
+# ahead of time compilation and evaluation. The ist of expressions
+# could be walked and optimistations (such as tail callling) 
+# performed.
+
+def parse_file file
+    # Do some stuff to open the file and read it
+    sexpr_list
+end
+
+##
+# Parse Sexpression
+#
+# Parse a single s expression, useful for REPL loops and similar
+
+def parse_sexpr
+    sexpr
+end
