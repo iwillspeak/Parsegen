@@ -14,6 +14,10 @@ OPER_LET
 QUOTE
 ATOM_NILL
 
+%language = ruby
+%ruby_module = LispParser
+%prefix = YY
+
 %%
 
 # zero or more sexpressions

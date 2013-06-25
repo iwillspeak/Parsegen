@@ -139,4 +139,4 @@ class OutputContext(object):
 
 # Import all the languages here. This is done at the bottom to ensure that all
 # the definitions needed are in scope
-from . import c, pretty_print
+from . import c, pretty_print, ruby

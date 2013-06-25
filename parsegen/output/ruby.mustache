@@ -1,0 +1,85 @@
+#! /usr/bin/env ruby
+{{#options.lexer_include}}
+require {{{.}}}
+{{/options.lexer_include}}
+
+{{#options.ruby_module}}
+module {{{.}}}
+{{/options.ruby_module}}
+
+##
+# Utilities
+
+class {{options.prefix}}TokenBuffer
+  
+  def initialise
+    @token_bufferd = false
+    @next_token = nil
+  end
+
+  def peek_next_token
+    if !token_buffered
+      @next_token = {{options.lexer_function}}
+      @token_buffered = false
+    end
+    next_token
+  end
+
+  def ensure_token expected
+    tok = peek_next_token
+    
+    if tok{{options.token_access}} != expected
+      return nil
+    end
+    
+    @token_buffered = false
+    tok
+  end
+end
+
+buffer = {{options.prefix}}TokenBuffer.new
+
+##
+# Main automaton
+
+{{#symbols}}
+def {{name}}
+  expansion = []
+
+  tok = buffer.peek_next_token
+
+  case tok{{options.token_access}}
+{{#expansions}}
+    when {{#predictions}}{{.}}, {{/predictions}}-1
+      {{#tokens}}
+         {{#terminal}}
+         
+         expansion << buffer.ensure_token {{name}}
+         {{/terminal}}
+         {{^terminal}}
+         expansion << {{name}}
+         {{/terminal}}
+         {{^nullable}}
+         raise "parse error" if expansion.last == nil
+         {{/nullable}}
+      {{/tokens}}
+
+{{/expansions}}
+{{#nullable}}
+    else
+      return nil
+{{/nullable}}
+  end
+  expansion
+end
+
+{{/symbols}}
+
+##
+# User Code
+
+{{grammar.user_code}}
+
+{{#options.ruby_module}}
+end
+{{/options.ruby_module}}
