@@ -1,4 +1,3 @@
-
 #include <stdlib.h>
 #include <stdio.h>
 {{#options.lexer_include}}
@@ -29,6 +28,7 @@ static int token_buffered = 0;
 	{{options.token_type}} tok = {{options.prefix}}__peek_next_token();
 	
 	if (tok{{options.token_access}} == expected) {
+		token_buffered = 0;
 		return tok;
 	}
 	
