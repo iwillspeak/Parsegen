@@ -98,7 +98,7 @@ class Symbol(object):
 		in.
 		"""
 
-		self.expansions.append(Struct(tokens=expansion))
+		self.expansions.append(Expansion(self, expansion))
 		if not expansion:
 			# We _know_ this symbol is nullable now, so set it
 			self.set_nullable()
@@ -159,3 +159,25 @@ class Symbol(object):
 		"""
 
 		self.grammar = grammar
+
+class Expansion(object):
+	"""Expansion
+	
+	Represents a series of tokens in a grammar expansion.
+	"""
+
+	def __init__(self, symbol, tokens):
+		self.symbol = symbol
+		self.tokens = tokens
+
+	@lazyprop
+	def predictions(self):
+		predictions = []
+		if not self.tokens:
+			pass
+		elif self.tokens[0] in self.symbol.grammar.header.terminals:
+			predictions = [self.tokens[0]]
+		else:
+			predictions = self.symbol.grammar.expansions[self.tokens[0]].first
+
+		return [self.symbol.grammar.header.terminals[t] for t in predictions]

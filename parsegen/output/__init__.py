@@ -70,21 +70,6 @@ class OutputContext(object):
 		# are pointer types.
 		self.register_option("token_type_access", "")
 	
-	def predictions_for_expansion(self, expansion):
-		"""Predictions for Expansion
-		
-		Returns a list of tokens that predict the given expansion. This can be
-		empty if the expansion is a lambda transition, otherwise it will be
-		the first set of the first symbol in the expansion.
-		"""
-		
-		if not expansion.tokens:
-			return set()
-		elif expansion.tokens[0] in self.grammar.header.terminals:
-			return {expansion.tokens[0]}
-		else:
-			return self.grammar.expansions[expansion.tokens[0]].first
-	
 	def register_option(self, option_name, default="", prefix=False):
 		self.option_definitions.append((option_name, default, prefix))
 	

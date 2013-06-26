@@ -37,8 +37,7 @@ class PrettyPrintContext(CallbackOutputContext):
 		kind = "NULLABLE" if symbol.is_nullable() else "COMPULSORY"
 		file.write("%s SYMBOL %s {\n" % (kind, symbol.name))
 		for exp in symbol.expansions:
-			predictions = self.predictions_for_expansion(exp)
-			file.write("  {%s}\n" % ", ".join([s for s in predictions]))
+			file.write("  {%s}\n" % ", ".join(exp.predictions))
 			file.write("  ~> %s\n" % ", ".join(exp.tokens))
 		file.write("}\n\n")
 
