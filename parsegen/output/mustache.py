@@ -44,24 +44,18 @@ class MustacheContext(OutputContext):
 		]
 		
 	def _transform_symbol(self, symbol):
-		
-		return {
-			'name' : symbol.name,
-			'nullable' : symbol.is_nullable(),
-			'nonterminal_count' : symbol.nonterminal_count(),
-			'terminal_count' : symbol.terminal_count(),
-			'expansions' : [
-				self._transform_expansion(exp)
-				for exp in symbol.expansions if exp
-			]
-		}
+
+		symbol.expansions = [
+			self._transform_expansion(e) for e in symbol.expansions if e]
+
+		return symbol
 	
 	def _transform_expansion(self, exp):
 		predictions = self.predictions_for_expansion(exp)
 		predictions = [self.grammar.header.terminals[t] for t in predictions]
 		return {
 			'predictions' : predictions,
-			'tokens' : self._transform_tokens(exp)
+			'tokens' : self._transform_tokens(exp.tokens)
 		}
 	
 	def _transform_tokens(self, tokens):

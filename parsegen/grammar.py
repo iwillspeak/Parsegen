@@ -58,10 +58,10 @@ class Grammar(object):
 		
 			for exp in symbol.expansions:
 				# This creates the initial first sets for each symbol
-				if exp and exp[0] in self.header.terminals:
-					symbol.add_first(exp[:1])
+				if exp.tokens and exp.tokens[0] in self.header.terminals:
+					symbol.add_first(exp.tokens[:1])
 			
-				for e in exp:
+				for e in exp.tokens:
 					valid = e in self.header.terminals or e in self.expansions
 					if not valid:
 						raise GrammarError(error_undefined.format(e))
@@ -87,7 +87,7 @@ class Grammar(object):
 	
 		changed = False
 	
-		for e in expansion:
+		for e in expansion.tokens:
 			if e in self.header.terminals:
 				break
 			other_sym = self.expansions[e]

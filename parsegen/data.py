@@ -21,7 +21,7 @@
 # THE SOFTWARE.
 
 from parsegen.errors import SymbolNameError
-from parsegen.utils import lazyprop
+from parsegen.utils import lazyprop, Struct
 
 class Header(object):
 	"""Grammar File Header
@@ -98,7 +98,7 @@ class Symbol(object):
 		in.
 		"""
 
-		self.expansions.append(expansion)
+		self.expansions.append(Struct(tokens=expansion))
 		if not expansion:
 			# We _know_ this symbol is nullable now, so set it
 			self.set_nullable()

@@ -66,7 +66,7 @@ class TestSymbol(object):
 	
 	Test the Symbol object. This is responsible for representing a given
 	symbol and all of it's expansions. It is responsible for holding information
-	about the nullability of the symbol and the first and follow sets of the 
+	about the nullability of the symbol and the first and follow sets of the
 	symbol.
 	"""
 	

@@ -65,10 +65,10 @@ def {{name}}
       {{/tokens}}
 
 {{/expansions}}
-{{#nullable}}
+{{#is_nullable}}
     else
       return nil
-{{/nullable}}
+{{/is_nullable}}
   end
   expansion
 end

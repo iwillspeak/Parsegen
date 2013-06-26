@@ -78,12 +78,12 @@ class OutputContext(object):
 		the first set of the first symbol in the expansion.
 		"""
 		
-		if not expansion:
+		if not expansion.tokens:
 			return set()
-		elif expansion[0] in self.grammar.header.terminals:
-			return {expansion[0]}
+		elif expansion.tokens[0] in self.grammar.header.terminals:
+			return {expansion.tokens[0]}
 		else:
-			return self.grammar.expansions[expansion[0]].first
+			return self.grammar.expansions[expansion.tokens[0]].first
 	
 	def register_option(self, option_name, default="", prefix=False):
 		self.option_definitions.append((option_name, default, prefix))

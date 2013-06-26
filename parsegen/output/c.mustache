@@ -93,10 +93,10 @@ static int token_buffered = 0;
 		break;
 		
 {{/expansions}}
-{{#nullable}}
+{{#is_nullable}}
 	default: /* Lambda transition */
 		return 0;
-{{/nullable}}
+{{/is_nullable}}
 	}
 	
 error:

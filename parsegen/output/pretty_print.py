@@ -39,7 +39,7 @@ class PrettyPrintContext(CallbackOutputContext):
 		for exp in symbol.expansions:
 			predictions = self.predictions_for_expansion(exp)
 			file.write("  {%s}\n" % ", ".join([s for s in predictions]))
-			file.write("  ~> %s\n" % ", ".join(exp))
+			file.write("  ~> %s\n" % ", ".join(exp.tokens))
 		file.write("}\n\n")
 
 register_context("pretty_print", PrettyPrintContext)
