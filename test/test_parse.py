@@ -146,5 +146,3 @@ class TestParse(object):
 		assert_raises(
 			GrammarError, lambda: parse_buffer(
 				"TOKEN %% TOKEN := invalid \n invalid := %% "))
-
-		

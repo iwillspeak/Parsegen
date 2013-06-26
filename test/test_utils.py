@@ -51,7 +51,7 @@ class TestStruct(object):
 	
 	def test_invalid(self):
 		
-		assert_raises(TypeError, lambda : Struct())
+		assert_raises(TypeError, lambda : Struct(123))
 	
 	def test_dict_access(self):
 		

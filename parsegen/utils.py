@@ -28,8 +28,9 @@ class Struct(object):
 	3.x compatible.
 	"""
 	
-	def __init__(self, dict, **kwargs):
-		self.__dict__.update(dict)
+	def __init__(self, *dicts, **kwargs):
+		for d in dicts:
+			self.__dict__.update(d)
 		self.__dict__.update(kwargs)
 	
 	def __repr__(self):

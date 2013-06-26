@@ -76,6 +76,16 @@ def _processed_lines(text):
 		if len(l):
 			yield l
 
+def parse_option(opt_line):
+	"""Parse Option
+
+	Allows other parts of the program to use the option parsing in this file. If
+	the code is updated it should make things simpler if this is used to process
+	options.
+	"""
+
+	return _kv_with_sep(opt_line, "=")
+
 def _kv_with_sep(opt_line, sep="="):
 	"""Key Value Pair
 	
@@ -84,10 +94,7 @@ def _kv_with_sep(opt_line, sep="="):
 	
 	key, _, val = opt_line.partition(sep)
 	
-	key = key.strip()
-	val = val.strip()
-	
-	return key, val
+	return key.strip(), val.strip()
 
 def _add_opt_to_dict(opt_line, dict, sep="=", mirror_empty=False):
 	"""Add Option to Dictionary

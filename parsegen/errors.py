@@ -49,7 +49,7 @@ class ParseError(ParsegenError):
 class GrammarError(ParsegenError):
 	"""Grammar Error
 	
-	Represent a logical error in one of the grammar expansions. The reason for 
+	Represent a logical error in one of the grammar expansions. The reason for
 	the failure is provided as a string.
 	"""
 	

@@ -1,4 +1,4 @@
 base_path: .
-filters: \.py$ \.mustache$
+filters: \.py$ \.mustache$ bin/.*$
 ignored: setup.py$
 command: nosetests test/

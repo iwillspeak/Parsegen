@@ -33,7 +33,7 @@ def write_grammar(grammar, file=sys.stdout, options=None, language=None):
 	Write a program out to the file that represents an automaton that parses
 	the given grammar.
 	"""
-	
+
 	if not language:
 		language = grammar.header.options.get("language", "pretty_print")
 	ctx = language_hash[_normalise_language_name(language)]

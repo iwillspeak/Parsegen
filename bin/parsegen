@@ -1,14 +1,57 @@
 #! /usr/bin/env python3
 
 import sys
+import argparse
 
-from parsegen import parse, output
+from parsegen import parse, output, errors
+from parsegen.utils import Struct
+
+def _process_arguments(args):
+
+	# Using argparse to get all the options, not that there are many
+	parser = argparse.ArgumentParser(description="LL(1) parser generator")
+	parser.add_argument(
+		'-o', '--output', help="File to write the generated grammar to.",
+		type=argparse.FileType('w'), metavar='FILE', default=sys.stdout)
+	parser.add_argument(
+		'-l', '--language', help="The language to use to generate the parser.")
+	parser.add_argument(
+		'file', help="Input grammar file", type=argparse.FileType('r'))
+	parser.add_argument('options', nargs="*",
+		help="option=value pairs to override values specified in the grammar")
+
+	options = parser.parse_args(args)
+
+	options_dict = {}
+	for opt in options.options:
+		opt, val = parse.parse_option(opt)
+		options_dict[opt] = val
+
+	return Struct(output_file=options.output, input_file=options.file,
+				  options=options_dict, language=options.language)
 
 def main(args):
-	for a in args:
-		grammar = parse.parse_file(a)
-		with open(a + '.out', 'w') as file:
-			output.write_grammar(grammar, file)
+
+	args = _process_arguments(args)
+
+	# Make sure we have a file to read. Make sure the error message matches the
+	# rest of the program
+	if not args.input_file:
+		print(errors.ParsegenError("argument error", "no input file specified"))
+		sys.exit(1)
+
+	try:
+		# These two lines do all the heavy lifting
+		grammar = parse.parse_file(args.input_file)
+		output.write_grammar(grammar, file=args.output_file,
+							 options=args.options, language=args.language)
+
+		# Close the files when we are done with them
+		if args.output_file != sys.stdout: args.output_file.close()
+		args.input_file.close()
+	except errors.ParsegenError as e:
+		print(e)
+		sys.exit(1)
 
 if __name__ == '__main__':
 	sys.exit(main(sys.argv[1:]))
