@@ -8,16 +8,8 @@ Feel free to post suggestions for other items that are not on this list as issue
 
 ## HIGH
 
-* Add command line parameters. Because what use is a command line program with no user interface.
-
-Don't plan on having too many parameters really, the application is kind of a one-trick horse.
-
-Something like:
-`parsegen [-o <out>] [-l <lang>] <in> [option=value]*`
-
 ## MEDIUM
 
-* Add some form method to the Symbol object that would allow it to return the number of terminals and nonterminals in it. This may have to wait for the creation of the Token wrapper class.
 * Create an Expansion object to be responsible for computing the predictions for an expansion and providing some form of signature that can be used to uniquely identify expansions within a symbol.
 * Create a Token wrapper class that will expose a unified interface for terminal and nonterminals.
 * Allow adding semantic actions to each expansion within the grammar, bison style.
