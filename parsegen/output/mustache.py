@@ -35,22 +35,21 @@ class MustacheContext(OutputContext):
 		OutputContext.__init__(self, *args)
 		self.template_file = template_file
 		self.register_option("token_flag_type", default="int")
+		self.symbols = None
 
-	@lazyprop
-	def symbols(self):
-		return [
+	def _update_state(self):
+		self.symbols = [
 			self._transform_symbol(symbol)
 			for symbol in self.grammar.expansions.values()
 		]
 		
 	def _transform_symbol(self, symbol):
-		nterms, terms = self._get_counts(symbol)
 		
 		return {
 			'name' : symbol.name,
 			'nullable' : symbol.is_nullable(),
-			'nonterminal_count' : nterms,
-			'terminal_count' : terms,
+			'nonterminal_count' : symbol.nonterminal_count(),
+			'terminal_count' : symbol.terminal_count(),
 			'expansions' : [
 				self._transform_expansion(exp)
 				for exp in symbol.expansions if exp
@@ -113,7 +112,7 @@ class MustacheContext(OutputContext):
 		
 		Output the grammar to the file using a Mustache template.
 		"""
+
+		self._update_state()
 		
-		template = self._read_template()
-		
-		file.write(pystache.render(template, self))
+		file.write(pystache.render(self._read_template(), self))

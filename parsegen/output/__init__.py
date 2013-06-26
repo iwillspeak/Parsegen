@@ -118,25 +118,6 @@ class OutputContext(object):
 			opts.update(options_merge)
 		return opts
 
-	def _get_counts(self, symbol):
-		"""Get Counts
-		
-		Returns the number of nodes in a given symbol that are nonterminals and
-		terminals.
-		"""
-		node_count, term_count = 0, 0
-
-		for expansion in symbol.expansions:
-			n,t = 0,0
-			for e in expansion:
-				if e in self.grammar.header.terminals:
-					t += 1
-				else:
-					n += 1
-			if n > node_count: node_count = n
-			if t > term_count: term_count = t
-		return node_count, term_count
-
 # Import all the languages here. This is done at the bottom to ensure that all
 # the definitions needed are in scope
 from . import c, pretty_print, ruby

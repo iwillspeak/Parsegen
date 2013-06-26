@@ -27,7 +27,7 @@ class Grammar(object):
 	
 	Represents a parsed grammar file.
 	
-	This object is used to collect together the parts of a grammar to allow 
+	This object is used to collect together the parts of a grammar to allow
 	parsed grammars to be passed around more easily. It is also responsible
 	for calculating the sets for each expansion in the grammar from the raw
 	grammar that it is given.
@@ -51,6 +51,8 @@ class Grammar(object):
 		error_undefined = "{0} is not defined as a terminal or nonterminal"
 	
 		for symbol in self.expansions.values():
+			symbol.set_grammar(self)
+
 			if symbol.name in self.header.terminals:
 				raise GrammarError(error_nterm_expand.format(symbol.name))
 		

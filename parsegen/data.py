@@ -21,6 +21,7 @@
 # THE SOFTWARE.
 
 from parsegen.errors import SymbolNameError
+from parsegen.utils import lazyprop
 
 class Header(object):
 	"""Grammar File Header
@@ -55,12 +56,39 @@ class Symbol(object):
 		self.nullable = False
 		self.first = set()
 		self.follow = set()
+		self.grammar = None
 	
 	def _process_name(self, name):
 		name = name.strip()
 		if name and len(name.split()) != 1:
 			raise SymbolNameError(name)
 		return name
+
+	@lazyprop
+	def counts(self):
+		"""Counts
+
+		Returns the maximum number of terminals and nonterminals that this
+		symbol has in any of its expansions
+		"""
+		node_count, term_count = 0, 0
+
+		for expansion in self.expansions:
+			n,t = 0,0
+			for e in expansion:
+				if e in self.grammar.header.terminals:
+					t += 1
+				else:
+					n += 1
+			if n > node_count: node_count = n
+			if t > term_count: term_count = t
+		return node_count, term_count
+
+	def nonterminal_count(self):
+		return self.counts[0]
+
+	def terminal_count(self):
+		return self.counts[1]
 	
 	def add_expansion(self, expansion):
 		"""Add Expansion
@@ -123,3 +151,11 @@ class Symbol(object):
 		"""
 		
 		self.follow = self._union_set_with_values(self.follow, values)
+
+	def set_grammar(self, grammar):
+		"""Set Grammar
+
+		Attach the symbol to a grammar
+		"""
+
+		self.grammar = grammar
