@@ -1,4 +1,5 @@
 base_path: .
+paths: test/ parsegen/ bin/
 filters: \.py$ \.mustache$ bin/.*$
-ignored: setup.py$
+ignored: setup\.py$
 command: nosetests test/
