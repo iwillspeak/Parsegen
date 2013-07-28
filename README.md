@@ -30,6 +30,22 @@ The final section contains user code that is written to the output file without 
 
 In the first two sections the `#` character can be used as a line comment character. Any text after  the hash is ignored. Within the user code section you are free to use whatever comment system you like, just make sure that it is supported by the target language.
 
+### Example Grammar
+
+An example grammar which parses a properly formatted chain of integers added together:
+
+    NUMBER Tok_NUMBER
+    PLUS   Tok_PLUS
+    %%
+    addition_list := NUMBER addition_list_prime
+    addition_list_prime := PLUS NUMBER addition_list_prime
+    addition_list_prime := 
+    %%
+    int main(int argc, const char* argv[])
+    {
+        printf("%d", addition_list());
+    }
+
 ## Prerequisites
 
 Parsegen is written in Python 3. To get it up and running you will need a python3 installation and the `pystache` module. If you want to be able to run the tests you will need to have `nose` installed as well. For development you will probably want to use [Snooper][snooper_url] or `nosy` to run the test suites automatically.
