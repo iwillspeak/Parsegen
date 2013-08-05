@@ -20,9 +20,11 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
+import sys
 import argparse
 
 from parsegen.utils import Struct
+import parsegen.parse
 
 def parse(args):
 
@@ -47,7 +49,7 @@ def parse(args):
 
     options_dict = {}
     for opt in options.options:
-        opt, val = parse.parse_option(opt)
+        opt, val = parsegen.parse.parse_option(opt)
         options_dict[opt] = val
 
     return Struct(output_file=options.output, input_file=options.file,
