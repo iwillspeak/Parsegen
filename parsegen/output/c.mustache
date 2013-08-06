@@ -43,7 +43,7 @@ static int token_buffered = 0;
 
 {{#symbols}}
 {{#expansions}}
-{{options.node_type}} 
+{{options.node_type}}
 {{name}}_sem_{{#tokens}}{{#terminal}}t{{/terminal}}{{^terminal}}n{{/terminal}}{{/tokens}}
 	({{#tokens}}{{#terminal}}{{options.token_type}}{{/terminal}}{{^terminal}}{{options.node_type}}{{/terminal}}{{^last}},{{/last}}{{/tokens}});
 {{/expansions}}
@@ -63,7 +63,7 @@ static int token_buffered = 0;
 	
 
 	{{options.token_type}} next_tok = {{options.prefix}}_peek_next_token();
-	
+        
 	switch (next_tok{{options.token_access}}) {
 {{#expansions}}
 	{{#predictions}}

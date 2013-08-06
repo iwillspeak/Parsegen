@@ -29,7 +29,7 @@ def parse_buffer(buffer):
 	
 	Parse the given buffer and return a 3-tuple of the contents. The first
 	element of the tuple is a Header object representing the definitions
-	and options used, the second is a list of expansions and the third is a 
+	and options used, the second is a list of expansions and the third is a
 	string containing the contents of the user code section.
 	"""
 	
