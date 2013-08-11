@@ -108,8 +108,9 @@ class Grammar(object):
 	def _update_follow_from_expansion(self, symbol, expansion):
 		"""Update Follow from Expansion
 	
-		Updates the follow set for a given symbol based on one of it's expansions.
-		Returns true if an update is made to the symbol and false otherwise.
+		Updates the follow set for a given symbol based on one of it's
+        expansions.	Returns true if an update is made to the symbol and false
+        otherwise.
 		"""
 	
 		# TODO: implement follow sets

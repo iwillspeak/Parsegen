@@ -115,8 +115,8 @@ class Symbol(object):
 	def is_nullable(self):
 		"""Is Nullable
 		
-		Returns true if the symbol is nullable and false otherwise. A symbol with
-		no expansions is considered nullable.
+		Returns true if the symbol is nullable and false otherwise. A symbol
+        with no expansions is considered nullable.
 		"""
 		
 		if len(self.expansions) == 0:

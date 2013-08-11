@@ -26,7 +26,7 @@ class ParsegenError(Exception):
 	Root class for all exceptions in this module
 	"""
 	
-	def __init__(self, error_name, string):	
+	def __init__(self, error_name, string):
 		string = "parsegen: {0}: {1}".format(error_name, string)
 		Exception.__init__(self, string)
 	
@@ -41,7 +41,7 @@ class ParseError(ParsegenError):
 		"""ParseError Constructor
 		
 		Create a new parse error from a string. The string is automatically
-		formatted for pretty printing in context with other errors. 
+		formatted for pretty printing in context with other errors.
 		"""
 		
 		ParsegenError.__init__(self, 'parse error', string)
