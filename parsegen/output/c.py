@@ -20,16 +20,16 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-from parsegen.output import register_context
+from parsegen.output import register_formatter
 from parsegen.output.mustache import MustacheFormatter
 	
 class COutputFormatter(MustacheFormatter):
 	"""C Output Formatter
 	
-	Represents the context required to write out to a C file.
+	Represents the formatter required to write out to a C file.
 	"""
 	
 	def __init__(self, *args):
 		MustacheFormatter.__init__(self, "c.mustache", *args)
 
-register_context("c", COutputFormatter)
+register_formatter("c", COutputFormatter)

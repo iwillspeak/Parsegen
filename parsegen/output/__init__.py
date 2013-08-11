@@ -36,19 +36,19 @@ def write_grammar(grammar, file=sys.stdout, options=None, language=None):
 
 	if not language:
 		language = grammar.header.options.get("language", "pretty_print")
-	ctx = language_hash[_normalise_language_name(language)]
-	ctx(grammar, options).write(file)
+	fmt = language_hash[_normalise_language_name(language)]
+	fmt(grammar, options).write(file)
 	
 def _normalise_language_name(name):
 	return re.sub("[\-_\ ]", "-", name.strip()).upper()
 	
-def register_context(language, context):
-	language_hash[_normalise_language_name(language)] = context
+def register_formatter(language, formatter):
+	language_hash[_normalise_language_name(language)] = formatter
 
 class OutputFormatter(object):
 	"""Output Formatter
 	
-	Represents the context required to write a grammar out to a file.
+	Represents the formatter required to write a grammar out to a file.
 	"""
 	
 	def __init__(self, grammar, option_overrides=None):

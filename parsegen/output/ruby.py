@@ -20,11 +20,11 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-from parsegen.output import register_context
+from parsegen.output import register_formatter
 from parsegen.output.mustache import MustacheFormatter
 	
-class RubyContext(MustacheFormatter):
-	"""Ruby Context
+class RubyFormatter(MustacheFormatter):
+	"""Ruby Formatter
 	
 	Outputs a grammar as an executable ruby program.
 	"""
@@ -33,4 +33,4 @@ class RubyContext(MustacheFormatter):
 		MustacheFormatter.__init__(self, "ruby.mustache",  *args)
 		self.register_option("ruby_module", default="", prefix=False)
 
-register_context("ruby", RubyContext)
+register_formatter("ruby", RubyFormatter)

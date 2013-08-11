@@ -20,11 +20,11 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-from parsegen.output import register_context
+from parsegen.output import register_formatter
 from parsegen.output.callback import CallbackOutputFormatter
 
-class PrettyPrintContext(CallbackOutputFormatter):
-	"""Pretty Print Context
+class PrettyPrintFormatter(CallbackOutputFormatter):
+	"""Pretty Print Formatter
 	
 	Prints out a human readable representation of the computed grammar.
 	"""
@@ -41,4 +41,4 @@ class PrettyPrintContext(CallbackOutputFormatter):
 			file.write("  ~> %s\n" % ", ".join(exp.tokens))
 		file.write("}\n\n")
 
-register_context("pretty_print", PrettyPrintContext)
+register_formatter("pretty_print", PrettyPrintFormatter)

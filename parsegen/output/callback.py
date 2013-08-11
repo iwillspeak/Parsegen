@@ -23,10 +23,10 @@
 from parsegen.output import OutputFormatter
 
 class CallbackOutputFormatter(OutputFormatter):
-	"""Callback Output Context
+	"""Callback Output Formatter
 	
-	Output context that uses callbacks to write things to a stream. This is
-	intended for implementing output contexts where the logic for the context
+	Output formatter that uses callbacks to write things to a stream. This is
+	intended for implementing output formatters where the logic for the formatter
 	is better expressed in python.
 	"""
 	
