@@ -21,16 +21,16 @@
 # THE SOFTWARE.
 
 from parsegen.output import register_context
-from parsegen.output.mustache import MustacheContext
+from parsegen.output.mustache import MustacheFormatter
 	
-class RubyContext(MustacheContext):
+class RubyContext(MustacheFormatter):
 	"""Ruby Context
 	
 	Outputs a grammar as an executable ruby program.
 	"""
 
 	def __init__(self, *args):
-		MustacheContext.__init__(self, "ruby.mustache",  *args)
+		MustacheFormatter.__init__(self, "ruby.mustache",  *args)
 		self.register_option("ruby_module", default="", prefix=False)
 
 register_context("ruby", RubyContext)

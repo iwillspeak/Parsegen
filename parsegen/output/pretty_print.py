@@ -21,17 +21,17 @@
 # THE SOFTWARE.
 
 from parsegen.output import register_context
-from parsegen.output.callback import CallbackOutputContext
+from parsegen.output.callback import CallbackOutputFormatter
 
-class PrettyPrintContext(CallbackOutputContext):
+class PrettyPrintContext(CallbackOutputFormatter):
 	"""Pretty Print Context
 	
 	Prints out a human readable representation of the computed grammar.
 	"""
 	
 	def __init__(self, *args):
-		CallbackOutputContext.__init__(self, *args)
-		self.register_callback(self._output_symbol, CallbackOutputContext.MAIN)
+		CallbackOutputFormatter.__init__(self, *args)
+		self.register_callback(self._output_symbol, CallbackOutputFormatter.MAIN)
 	
 	def _output_symbol(self, symbol, file):
 		kind = "NULLABLE" if symbol.is_nullable() else "COMPULSORY"

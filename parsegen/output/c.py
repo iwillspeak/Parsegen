@@ -21,15 +21,15 @@
 # THE SOFTWARE.
 
 from parsegen.output import register_context
-from parsegen.output.mustache import MustacheContext
+from parsegen.output.mustache import MustacheFormatter
 	
-class COutputContext(MustacheContext):
-	"""C Output Context
+class COutputFormatter(MustacheFormatter):
+	"""C Output Formatter
 	
 	Represents the context required to write out to a C file.
 	"""
 	
 	def __init__(self, *args):
-		MustacheContext.__init__(self, "c.mustache", *args)
+		MustacheFormatter.__init__(self, "c.mustache", *args)
 
-register_context("c", COutputContext)
+register_context("c", COutputFormatter)

@@ -83,7 +83,7 @@ class TestOutput(object):
 		
 		""")
 		
-		ctx = OutputContext(g, {"prefix": "bar_"})
+		ctx = OutputFormatter(g, {"prefix": "bar_"})
 		
 		opts = {
 			"prefix": "bar_",

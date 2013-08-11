@@ -20,19 +20,19 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-from parsegen.output import OutputContext
+from parsegen.output import OutputFormatter
 from parsegen.utils import lazyprop, Struct
 import pystache
 import os
 	
-class MustacheContext(OutputContext):
-	"""Mustache Context
+class MustacheFormatter(OutputFormatter):
+	"""Mustache Formatter
 	
 	Prints out a grammar using the mustache templating language.
 	"""
 	
 	def __init__(self, template_file, *args):
-		OutputContext.__init__(self, *args)
+		OutputFormatter.__init__(self, *args)
 		self.template_file = template_file
 		self.register_option("token_flag_type", default="int")
 		self.symbols = None

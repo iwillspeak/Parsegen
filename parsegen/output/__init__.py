@@ -45,8 +45,8 @@ def _normalise_language_name(name):
 def register_context(language, context):
 	language_hash[_normalise_language_name(language)] = context
 
-class OutputContext(object):
-	"""Output Context
+class OutputFormatter(object):
+	"""Output Formatter
 	
 	Represents the context required to write a grammar out to a file.
 	"""

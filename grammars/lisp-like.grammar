@@ -52,7 +52,7 @@ identifiers :=
 #
 # Parse a whole flile into a list of sexpressions. This is for
 # ahead of time compilation and evaluation. The ist of expressions
-# could be walked and optimistations (such as tail callling) 
+# could be walked and optimistations (such as tail callling)
 # performed.
 
 def parse_file file
