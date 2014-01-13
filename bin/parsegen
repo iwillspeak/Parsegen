@@ -22,8 +22,8 @@ def main(args):
 
 		# Close the files when we are done with them
 		if args.output_file != sys.stdout:
-            args.output_file.close()
-		args.input_file.close()
+			args.output_file.close()
+			args.input_file.close()
 	except errors.ParsegenError as e:
 		print(e)
 		sys.exit(1)
