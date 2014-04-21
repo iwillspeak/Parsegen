@@ -24,6 +24,7 @@ import sys
 import argparse
 
 from parsegen.utils import Struct
+from parsegen.version import VERSION
 import parsegen.parse
 
 def parse(args):
@@ -44,6 +45,9 @@ def parse(args):
                         help="option=value pairs to override values " \
                         "specified in the grammar",
                         nargs="*")
+    parser.add_argument('--version', action='version',
+                        help="Print out the version information",
+                        version="Parsegen version {0}".format(VERSION))
     
     options = parser.parse_args(args)
 
