@@ -50,4 +50,14 @@ An example grammar which parses a properly formatted chain of integers added tog
 
 Parsegen is written in Python 3. To get it up and running you will need a python3 installation and the `pystache` module. If you want to be able to run the tests you will need to have `nose` installed as well. For development you will probably want to use [Snooper][snooper_url] or `nosy` to run the test suites automatically.
 
+# Gimme Gimme Gimme!
+
+Parsegen can be installed with just one command in a Python 3 environment:
+
+    $ pip3 install --pre parsegen
+
+To check that the package installed ok run the following command:
+
+    $ parsegen --version
+
 [snooper_url]: http://github.com/iwillspeak/snooper
