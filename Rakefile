@@ -6,7 +6,7 @@ task :default => ['build']
 DOC_SRCS = FileList['docs/*.ronn']
 DOCS = DOC_SRCS.ext("") + DOC_SRCS.ext("html")
 
-CLEAN << DOCS
+DOCS.each { |f| CLEAN << f }
 CLOBBER << 'build'
 
 desc "Build the package"
