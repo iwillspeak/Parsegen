@@ -1,6 +1,6 @@
 # Copying and Distributing This Project
 
-This project is copyright Will Speak (2012) and, unless stated otherwise, all files in this project are covered by the following BSD licence:
+This project is copyright Will Speak (2012-2014) and, unless stated otherwise, all files in this project are covered by the following BSD licence:
 
 > Permission is hereby granted, free of charge, to any person obtaining a copy
 > of this software and associated documentation files (the "Software"), to deal
