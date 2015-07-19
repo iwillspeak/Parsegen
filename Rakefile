@@ -33,3 +33,7 @@ end
 # Build the docs : rake docs
 desc "Build the manpages"
 task :docs => DOCS
+
+task :test do
+  sh %{nosetests}
+end
