@@ -1,5 +1,7 @@
 # Parsegen
 
+** This project is super old, and hasn't been supported for many years. **
+
 Parsegen is an automatic parser generator. It reads in definitions in BNF and creates a top-down parser with one-symbol lookahead. Currently it supports outputting parsers in *c* and *Ruby*, although the ruby support is in it's early days.
 
 Parsegen reads in files that describe LL(1) grammars and outputs a top-down hand-editable automaton that parses them.
